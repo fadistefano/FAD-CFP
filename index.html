@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Estudo CFP 2026 — Fer</title>
+<style>
+:root{color-scheme:light;--navy:#0F3A5C;--teal:#1D8C7E;--pink:#E8446E;--ink:#12232E;--mut:#5C6B76;--line:#E1E7EC;--bg:#F5F7F9}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+.app{max-width:940px;margin:0 auto;padding:0 16px 70px}
+header.hd{background:var(--navy);color:#fff;margin:0 -16px 0;padding:16px 20px 0}
+header.hd h1{margin:0;font-size:19px}
+header.hd p{margin:2px 0 14px;font-size:12px;color:#B9CEDD}
+.tabs{display:flex;gap:2px;overflow-x:auto}
+.tabs button{background:transparent;border:0;color:#B9CEDD;padding:10px 14px;border-radius:9px 9px 0 0;cursor:pointer;white-space:nowrap;font-size:13px}
+.tabs button.on{background:var(--bg);color:var(--ink);font-weight:600}
+.pane{display:none;padding-top:18px}
+.pane.on{display:block}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:14px}
+.card h3{margin:0 0 12px;font-size:12px;text-transform:uppercase;letter-spacing:.7px;color:var(--mut)}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 15px;flex:1;min-width:120px}
+.stat b{display:block;font-size:21px;line-height:1.2}
+.stat span{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
+.gbar{height:11px;border-radius:99px;background:#E5EAEE;overflow:hidden;margin:6px 0 5px}
+.gbar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),#2FA394);width:0;transition:width .3s}
+.gmeta{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);gap:10px}
+.mrow{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px}
+.mdot{width:9px;height:9px;border-radius:50%;flex:none}
+.mname{width:150px;flex:none}
+.bar{flex:1;height:8px;border-radius:99px;background:#E5EAEE;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--teal);width:0;transition:width .3s}
+.mpct{width:44px;text-align:right;color:var(--mut);font-variant-numeric:tabular-nums}
+.week{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden}
+.wh{padding:12px 15px;background:#FAFBFC;border-bottom:1px solid var(--line);display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;cursor:pointer}
+.wn{font-weight:700}.wr{display:block;font-size:11px;color:#7A8896}
+.wt{font-size:12.5px;color:#3A4C59}
+.wm{text-align:right;font-size:12px;color:var(--mut);white-space:nowrap}
+.wprog{background:#EDF1F4;border-radius:99px;padding:2px 9px;font-variant-numeric:tabular-nums}
+.week.collapsed .rows{display:none}
+.row{display:grid;grid-template-columns:32px 68px 1fr;gap:10px;padding:11px 15px;border-top:1px solid #F0F3F5;align-items:start;cursor:pointer}
+.row:hover{background:#FAFCFD}
+.row.off{background:#FDF3F6;cursor:default}
+.row.prova{background:#FFF8E6}
+.cb{width:17px;height:17px;accent-color:var(--teal);cursor:pointer;margin-top:2px}
+.daycol{font-size:11px;color:#7A8896;padding-top:2px}
+.dow{display:block;font-weight:600;color:#3A4C59}
+.chip{display:inline-block;color:#fff;font-size:10px;font-weight:700;border-radius:5px;padding:2px 6px;margin-right:6px;vertical-align:1px}
+.chip.off{background:#C9D2DA}
+.h{font-size:11px;color:#7A8896;font-weight:600}
+.task{margin-top:4px}
+.rec{font-size:11px;color:#8493A0;margin-top:3px}
+.row.done .task{text-decoration:line-through;color:#9AA7B2}
+.row.done .rec{color:#B6C0C8}
+button.b{background:#fff;border:1px solid #D3DBE2;border-radius:9px;padding:8px 14px;cursor:pointer;color:#3A4C59;font-size:12.5px}
+button.b:hover{background:#F2F6F9}
+button.p{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600}
+button.p:hover{background:#17796D}
+button.d{background:#fff;border-color:#E3B9C4;color:#B03A48}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.clock{font-size:52px;font-weight:700;font-variant-numeric:tabular-nums;text-align:center;letter-spacing:1px;margin:6px 0 4px}
+.clock.run{color:var(--teal)}
+.clocklbl{text-align:center;font-size:12px;color:var(--mut);margin-bottom:14px}
+.tcontrols{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid #D3DBE2;border-radius:9px;overflow:hidden;margin-bottom:12px}
+.seg button{background:#fff;border:0;padding:7px 13px;cursor:pointer;font-size:12.5px;color:#3A4C59}
+.seg button.on{background:var(--navy);color:#fff}
+.fc{min-height:170px;display:flex;align-items:center;justify-content:center;text-align:center;padding:22px;border:1px solid var(--line);border-radius:12px;background:#FAFBFC;cursor:pointer;font-size:16px;line-height:1.5}
+.fc.back{background:#F2FAF8;font-size:14px;text-align:left}
+.fcmeta{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--mut);margin-bottom:8px}
+.qbox{border:1px solid var(--line);border-radius:12px;padding:16px;background:#fff}
+.qtxt{font-weight:600;margin-bottom:12px}
+.opt{display:block;border:1px solid #DCE3E9;border-radius:10px;padding:10px 13px;margin-bottom:7px;cursor:pointer;font-size:13.5px}
+.opt:hover{background:#F7FAFC}
+.opt.sel{border-color:var(--navy);background:#F2F6F9}
+.opt.ok{border-color:#1B6B45;background:#E6F6EC}
+.opt.no{border-color:#B03A48;background:#FBEBEE}
+.expl{margin-top:10px;padding:11px 13px;border-radius:10px;background:#F2FAF8;border:1px solid #CFE9E3;font-size:13px}
+.expl b{color:var(--teal)}
+.small{font-size:11.5px;color:#8493A0}
+.note{font-size:11.5px;color:#8493A0;margin-top:10px;line-height:1.5}
+label.fl{display:block;font-size:12px;color:var(--mut);margin:9px 0 3px}
+input[type=text],textarea,select{width:100%;border:1px solid #D3DBE2;border-radius:9px;padding:8px 10px;background:#fff}
+textarea{min-height:62px;resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:7px 8px;border-bottom:1px solid #F0F3F5;text-align:left}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:var(--mut)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;border-radius:99px;padding:2px 8px;font-size:11px;font-weight:700}
+.pill.g{background:#E6F6EC;color:#1B6B45}
+.pill.r{background:#FBEBEE;color:#B03A48}
+.errit{border-left:3px solid var(--pink);padding:8px 12px;margin-bottom:8px;background:#FDFAFB;border-radius:0 8px 8px 0}
+.errit .small{margin-top:3px}
+.hide{display:none}
+@media(max-width:620px){
+ .mname{width:110px}.row{grid-template-columns:28px 56px 1fr;gap:8px}
+ .clock{font-size:42px}.grid2{grid-template-columns:1fr}.wh{grid-template-columns:1fr auto}.wt{display:none}
+}
+</style></head><body>
+<div class="app">
+<header class="hd">
+<h1>Estudo CFP® 2026 — Fer</h1>
+<p>Prova 18/10/2026 · <span id="hdias">—</span> dias · 11 semanas · sábados livres</p>
+<div class="tabs">
+<button data-t="hoje" class="on">Hoje</button>
+<button data-t="crono">Cronograma</button>
+<button data-t="cards">Flashcards</button>
+<button data-t="quest">Questões</button>
+<button data-t="erros">Lista de erros</button>
+<button data-t="prog">Progresso</button>
+<button data-t="dados">Dados</button>
+</div>
+</header>
+
+<!-- HOJE -->
+<div class="pane on" id="p-hoje">
+ <div class="stats" style="margin-bottom:14px">
+  <div class="stat"><b id="s-dias">—</b><span>dias p/ a prova</span></div>
+  <div class="stat"><b id="s-feitos">0</b><span>dias concluídos</span></div>
+  <div class="stat"><b id="s-horas">0h</b><span>horas registradas</span></div>
+  <div class="stat"><b id="s-pct">0%</b><span>do plano</span></div>
+ </div>
+ <div class="card">
+  <h3>Tarefa de hoje</h3>
+  <div id="todayBox"></div>
+ </div>
+ <div class="card">
+  <h3>Cronômetro de estudo</h3>
+  <div class="seg" id="modeSeg">
+   <button data-mode="pomo" class="on">Pomodoro 25/5</button>
+   <button data-mode="livre">Cronômetro livre</button>
+  </div>
+  <div class="clock" id="clock">25:00</div>
+  <div class="clocklbl" id="clocklbl">Foco</div>
+  <div class="tcontrols">
+   <button class="b p" id="tStart">Iniciar</button>
+   <button class="b" id="tPause">Pausar</button>
+   <button class="b" id="tStop">Encerrar e registrar</button>
+  </div>
+  <p class="note">Ao encerrar, os minutos vão para as horas do dia selecionado abaixo. O cronômetro só conta enquanto esta aba estiver aberta.</p>
+  <label class="fl">Registrar as horas em</label>
+  <select id="tDay"></select>
+ </div>
+</div>
+
+<!-- CRONOGRAMA -->
+<div class="pane" id="p-crono">
+ <div class="tools">
+  <button class="b" id="expand">Expandir tudo</button>
+  <button class="b" id="collapse">Recolher tudo</button>
+  <button class="b" id="goToday">Ir para hoje</button>
+ </div>
+ <div id="weeks"></div>
+</div>
+
+<!-- FLASHCARDS -->
+<div class="pane" id="p-cards">
+ <div class="card">
+  <div class="fcmeta">
+   <select id="fcMod" style="width:auto"></select>
+   <span id="fcCount"></span>
+  </div>
+  <div class="fc" id="fcFace">Clique para ver a resposta</div>
+  <div class="tools" style="margin:12px 0 0;justify-content:center">
+   <button class="b" id="fcPrev">‹ Anterior</button>
+   <button class="b p" id="fcFlip">Virar</button>
+   <button class="b" id="fcNext">Próximo ›</button>
+   <button class="b" id="fcShuffle">Embaralhar</button>
+  </div>
+ </div>
+ <div class="card">
+  <h3>Adicionar meu flashcard</h3>
+  <div class="grid2">
+   <div><label class="fl">Módulo</label><select id="nfMod"></select></div>
+   <div><label class="fl">Frente</label><input type="text" id="nfF" placeholder="Ex.: Fórmula do CET"></div>
+  </div>
+  <label class="fl">Verso</label><textarea id="nfV"></textarea>
+  <div class="tools" style="margin-top:10px"><button class="b p" id="nfAdd">Adicionar</button></div>
+ </div>
+</div>
+
+<!-- QUESTOES -->
+<div class="pane" id="p-quest">
+ <div class="card">
+  <h3>Treino</h3>
+  <div class="grid2">
+   <div><label class="fl">Módulo</label><select id="qMod"></select></div>
+   <div><label class="fl">Modo</label><select id="qMode">
+     <option value="livre">Treino livre (com comentário na hora)</option>
+     <option value="sim">Simulado (comentários só no fim)</option>
+   </select></div>
+  </div>
+  <div class="tools" style="margin-top:12px">
+   <button class="b p" id="qStart">Começar</button>
+   <button class="b" id="qEnd" style="display:none">Encerrar e ver resultado</button>
+   <span class="small" id="qStatus" style="align-self:center"></span>
+  </div>
+ </div>
+ <div id="qArea"></div>
+ <div class="card">
+  <h3>Adicionar minha questão</h3>
+  <p class="small">Use isto para digitar as questões dos exercícios da apostila que você errou. Elas entram no banco e passam a aparecer no treino.</p>
+  <div class="grid2">
+   <div><label class="fl">Módulo</label><select id="nqMod"></select></div>
+   <div><label class="fl">Alternativa correta</label><select id="nqA">
+    <option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select></div>
+  </div>
+  <label class="fl">Enunciado</label><textarea id="nqQ"></textarea>
+  <div class="grid2">
+   <div><label class="fl">A</label><input type="text" id="nqO0"></div>
+   <div><label class="fl">B</label><input type="text" id="nqO1"></div>
+   <div><label class="fl">C</label><input type="text" id="nqO2"></div>
+   <div><label class="fl">D</label><input type="text" id="nqO3"></div>
+  </div>
+  <label class="fl">Comentário (por que a correta é correta)</label><textarea id="nqE"></textarea>
+  <div class="tools" style="margin-top:10px"><button class="b p" id="nqAdd">Adicionar ao banco</button></div>
+ </div>
+</div>
+
+<!-- ERROS -->
+<div class="pane" id="p-erros">
+ <div class="card">
+  <h3>Lista de erros</h3>
+  <p class="small">Toda questão que você erra cai aqui automaticamente. É este o material das Semanas 10 e 11 — não a apostila.</p>
+  <div class="tools"><select id="errMod" style="width:auto"></select><button class="b d" id="errClear">Limpar resolvidos</button></div>
+  <div id="errList"></div>
+ </div>
+</div>
+
+<!-- PROGRESSO -->
+<div class="pane" id="p-prog">
+ <div class="card">
+  <h3>Progresso do plano</h3>
+  <div class="gbar"><i id="gfill"></i></div>
+  <div class="gmeta"><span id="gtxt"></span><span>meta: ≥70% no total e ≥50% em cada módulo</span></div>
+  <h3 style="margin-top:18px">Dias concluídos por módulo</h3>
+  <div id="modBars"></div>
+ </div>
+ <div class="card">
+  <h3>Desempenho nas questões</h3>
+  <table><thead><tr><th>Módulo</th><th class="n">Respondidas</th><th class="n">Acertos</th><th class="n">%</th><th class="n">Corte 50%</th></tr></thead>
+  <tbody id="perfBody"></tbody></table>
+  <p class="note">O corte olha os seus acertos acumuladas por módulo. Serve de termômetro — não substitui um simulado completo cronometrado.</p>
+ </div>
+</div>
+
+<!-- DADOS -->
+<div class="pane" id="p-dados">
+ <div class="card">
+  <h3>Backup</h3>
+  <p class="small">Tudo fica salvo neste navegador. Se você limpar os dados do navegador, trocar de computador ou usar o celular, precisa do arquivo de backup.</p>
+  <div class="tools">
+   <button class="b p" id="doExport">Exportar backup</button>
+   <button class="b" id="doImportBtn">Importar backup</button>
+   <input type="file" id="doImport" accept="application/json" class="hide">
+  </div>
+  <p class="note">Sugestão: exporte no fim de cada domingo e guarde o arquivo no seu Drive. São poucos KB.</p>
+ </div>
+ <div class="card">
+  <h3>Zerar</h3>
+  <div class="tools">
+   <button class="b d" id="rsMark">Zerar marcações e horas</button>
+   <button class="b d" id="rsAll">Zerar tudo, inclusive questões minhas</button>
+  </div>
+ </div>
+ <div class="card">
+  <h3>Sobre este app</h3>
+  <p class="note"><b>As questões e os flashcards são originais</b>, escritos sobre os temas do Programa Detalhado do exame. Não são reprodução da apostila da Planejar, que é protegida por direito autoral — use o botão «Adicionar minha questão» para montar seu próprio banco a partir dos exercícios que você resolver.<br><br>
+  Estrutura do exame conforme a Planejar: 8 módulos, 140 questões, 7 horas; aprovação com ≥70% no total e ≥50% em cada módulo. Confira sempre a legislação mais recente — o app cita EC 103/2019, EC 132/2023 e Lei 14.754/2023.<br><br>
+  As páginas citadas no cronograma são precisas para o Volume I (do índice que você enviou). Volumes II a VIII seguem os temas do Programa Detalhado.</p>
+ </div>
+</div>
+
+</div>
+<script>
+const D = {"plan": [{"id": 0, "w": 1, "date": "2026-08-03", "dow": "Segunda", "m": "M1", "mn": "M1 – Planejamento Financeiro", "t": "Vol I §1.1.1–1.1.2 — Introdução ao Planejamento Financeiro Pessoal + funções do planejador (p.13–17)", "r": "Apostila Vol I", "h": 1.5}, {"id": 1, "w": 1, "date": "2026-08-04", "dow": "Terça", "m": "M1", "mn": "M1 – Planejamento Financeiro", "t": "Vol I §1.1.3–1.1.4 — Planejador x consultor de produtos + AS 6 ETAPAS do processo CFP® (p.18–27). Decorar as 6 etapas.", "r": "Apostila Vol I", "h": 1.5}, {"id": 2, "w": 1, "date": "2026-08-05", "dow": "Quarta", "m": "M1", "mn": "M1 – Planejamento Financeiro", "t": "Vol I §1.2.1–1.2.2 — Práticas Essenciais e Normas de Práticas de Planejamento Financeiro (p.28–50)", "r": "Apostila Vol I", "h": 1.5}, {"id": 3, "w": 1, "date": "2026-08-06", "dow": "Quinta", "m": "M1", "mn": "M1 – Planejamento Financeiro", "t": "Vol I §1.2.3 — Código de Conduta Ética: aplicabilidade, princípios e regras (p.51–56)", "r": "Apostila Vol I + PDF Código de Ética (Planejar)", "h": 1.5}, {"id": 4, "w": 1, "date": "2026-08-07", "dow": "Sexta", "m": "M1", "mn": "M1 – Planejamento Financeiro", "t": "Vol I §1.2.3.5–1.2.4 — Procedimentos disciplinares + implementação prática das normas (p.57–90)", "r": "Apostila Vol I", "h": 1.5}, {"id": 5, "w": 1, "date": "2026-08-08", "dow": "Sábado", "m": "OFF", "mn": "Descanso", "t": "DESCANSO — noivo e missa", "r": "", "h": 0}, {"id": 6, "w": 1, "date": "2026-08-09", "dow": "Domingo", "m": "M1", "mn": "M1 – Planejamento Financeiro", "t": "VÍDEO: Mega Revisão Módulo I + Vol I §1.2.5 gestão do negócio e §1.3 habilidades profissionais (p.91–117). Fechar com 20 questões de ética.", "r": "Playlist Mega Revisões CFP – TopInvest (YouTube)", "h": 4}, {"id": 7, "w": 2, "date": "2026-08-10", "dow": "Segunda", "m": "M1", "mn": "M1 – Planejamento Financeiro", "t": "Vol I §1.4.1–1.4.4 — Reguladores (CVM, BCB, SUSEP, PREVIC), legislação, dever fiduciário e suitability (p.118–129)", "r": "Apostila Vol I", "h": 1.5}, {"id": 8, "w": 2, "date": "2026-08-11", "dow": "Terça", "m": "M1", "mn": "M1 – Planejamento Financeiro", "t": "Vol I §1.4.5–1.4.6 — Micro e macroeconomia, política monetária e fiscal, ciclos, PIB, IPCA/IGP-M (p.130–153)", "r": "Apostila Vol I", "h": 1.5}, {"id": 9, "w": 2, "date": "2026-08-12", "dow": "Quarta", "m": "M1", "mn": "M1 – Planejamento Financeiro", "t": "Vol I §1.4.7–1.4.8 — Ambientes social e político + insider trading, front running, spoofing e layering (p.154–169)", "r": "Apostila Vol I", "h": 1.5}, {"id": 10, "w": 2, "date": "2026-08-13", "dow": "Quinta", "m": "M1", "mn": "M1 – Planejamento Financeiro", "t": "Vol I §1.5 — Lei e conformidade (compliance): conflitos de interesse, direito privado, contratos (p.170–180)", "r": "Apostila Vol I", "h": 1.5}, {"id": 11, "w": 2, "date": "2026-08-14", "dow": "Sexta", "m": "M1", "mn": "M1 – Planejamento Financeiro", "t": "Vol I §1.6.1–1.6.3 — VDT: valor futuro, valor presente, número de períodos e taxa. Treino na HP-12C / Excel (p.181–200)", "r": "Apostila Vol I + calculadora", "h": 1.5}, {"id": 12, "w": 2, "date": "2026-08-15", "dow": "Sábado", "m": "OFF", "mn": "Descanso", "t": "DESCANSO — noivo e missa", "r": "", "h": 0}, {"id": 13, "w": 2, "date": "2026-08-16", "dow": "Domingo", "m": "M1", "mn": "M1 – Planejamento Financeiro", "t": "Vol I §1.6.4–1.6.9 — Anuidades (ordinária e vencida), fluxos irregulares, TIR e VPL (p.201–220) + 30 exercícios na calculadora", "r": "Apostila Vol I + calculadora", "h": 4}, {"id": 14, "w": 3, "date": "2026-08-17", "dow": "Segunda", "m": "M1", "mn": "M1 – Planejamento Financeiro", "t": "Vol I §1.7–1.8 — Características do cliente, objetivos, grupos geracionais e perfil de risco (p.221–235)", "r": "Apostila Vol I", "h": 1.5}, {"id": 15, "w": 3, "date": "2026-08-18", "dow": "Terça", "m": "M1", "mn": "M1 – Planejamento Financeiro", "t": "Vol I §1.9–1.10 — Escuta ativa, processo de descoberta, processo diligente de produtos e fornecedores (p.236–249)", "r": "Apostila Vol I", "h": 1.5}, {"id": 16, "w": 3, "date": "2026-08-19", "dow": "Quarta", "m": "M1", "mn": "M1 – Planejamento Financeiro", "t": "Vol I — Exercícios de Fixação (p.250–257) + leitura do Resumo (p.258–276). Começar a lista de erros.", "r": "Apostila Vol I", "h": 1.5}, {"id": 17, "w": 3, "date": "2026-08-20", "dow": "Quinta", "m": "M2", "mn": "M2 – Gestão Financeira", "t": "Vol II — Fluxo de caixa pessoal: elaboração, projeção e análise", "r": "Apostila Vol II", "h": 1.5}, {"id": 18, "w": 3, "date": "2026-08-21", "dow": "Sexta", "m": "M2", "mn": "M2 – Gestão Financeira", "t": "Vol II — Balanço patrimonial pessoal e índices (liquidez, endividamento, taxa de poupança)", "r": "Apostila Vol II", "h": 1.5}, {"id": 19, "w": 3, "date": "2026-08-22", "dow": "Sábado", "m": "OFF", "mn": "Descanso", "t": "DESCANSO — noivo e missa", "r": "", "h": 0}, {"id": 20, "w": 3, "date": "2026-08-23", "dow": "Domingo", "m": "M2", "mn": "M2 – Gestão Financeira", "t": "VÍDEO: Mega Revisão Gestão Financeira + orçamento doméstico, reserva de emergência e definição de metas. Fechar com 25 questões.", "r": "Playlist Mega Revisões CFP – TopInvest (YouTube)", "h": 4}, {"id": 21, "w": 4, "date": "2026-08-24", "dow": "Segunda", "m": "M2", "mn": "M2 – Gestão Financeira", "t": "Vol II — Gestão de dívidas: modalidades de crédito, taxa efetiva, CET, renegociação", "r": "Apostila Vol II", "h": 1.5}, {"id": 22, "w": 4, "date": "2026-08-25", "dow": "Terça", "m": "M2", "mn": "M2 – Gestão Financeira", "t": "Vol II — Sistemas de amortização: SAC, Tabela Price e SAM. Exercícios na calculadora.", "r": "Apostila Vol II + calculadora", "h": 1.5}, {"id": 23, "w": 4, "date": "2026-08-26", "dow": "Quarta", "m": "M2", "mn": "M2 – Gestão Financeira", "t": "Vol II — Financiamento imobiliário, leasing, consórcio; decisão comprar x alugar", "r": "Apostila Vol II", "h": 1.5}, {"id": 24, "w": 4, "date": "2026-08-27", "dow": "Quinta", "m": "M2", "mn": "M2 – Gestão Financeira", "t": "Vol II — Exercícios de fixação + resumo do módulo. Atualizar a lista de erros.", "r": "Apostila Vol II", "h": 1.5}, {"id": 25, "w": 4, "date": "2026-08-28", "dow": "Sexta", "m": "M3", "mn": "M3 – Investimentos e Gestão de Ativos", "t": "Vol III — Sistema financeiro, mercados e instrumentos (revisão rápida — você já tem base)", "r": "Apostila Vol III", "h": 1.5}, {"id": 26, "w": 4, "date": "2026-08-29", "dow": "Sábado", "m": "OFF", "mn": "Descanso", "t": "DESCANSO — noivo e missa", "r": "", "h": 0}, {"id": 27, "w": 4, "date": "2026-08-30", "dow": "Domingo", "m": "M3", "mn": "M3 – Investimentos e Gestão de Ativos", "t": "Vol III — Renda fixa: títulos públicos e privados, precificação, duration e curva de juros. 30 questões.", "r": "Apostila Vol III", "h": 4}, {"id": 28, "w": 5, "date": "2026-08-31", "dow": "Segunda", "m": "M3", "mn": "M3 – Investimentos e Gestão de Ativos", "t": "Vol III — Renda variável: ações, direitos dos acionistas, análise fundamentalista e valuation", "r": "Apostila Vol III", "h": 1.5}, {"id": 29, "w": 5, "date": "2026-09-01", "dow": "Terça", "m": "M3", "mn": "M3 – Investimentos e Gestão de Ativos", "t": "Vol III — Derivativos: futuro, termo, opções e swaps; estratégias de hedge", "r": "Apostila Vol III", "h": 1.5}, {"id": 30, "w": 5, "date": "2026-09-02", "dow": "Quarta", "m": "M3", "mn": "M3 – Investimentos e Gestão de Ativos", "t": "Vol III — Fundos de investimento (classificação CVM/ANBIMA), FIIs, ETFs e investimentos alternativos", "r": "Apostila Vol III", "h": 1.5}, {"id": 31, "w": 5, "date": "2026-09-03", "dow": "Quinta", "m": "M3", "mn": "M3 – Investimentos e Gestão de Ativos", "t": "Vol III — Risco e retorno, teoria de carteiras (Markowitz), fronteira eficiente e CAPM", "r": "Apostila Vol III", "h": 1.5}, {"id": 32, "w": 5, "date": "2026-09-04", "dow": "Sexta", "m": "M3", "mn": "M3 – Investimentos e Gestão de Ativos", "t": "Vol III — Medidas de performance: Sharpe, Treynor, alfa, beta e tracking error", "r": "Apostila Vol III", "h": 1.5}, {"id": 33, "w": 5, "date": "2026-09-05", "dow": "Sábado", "m": "OFF", "mn": "Descanso", "t": "DESCANSO — noivo e missa", "r": "", "h": 0}, {"id": 34, "w": 5, "date": "2026-09-06", "dow": "Domingo", "m": "M3", "mn": "M3 – Investimentos e Gestão de Ativos", "t": "VÍDEO: Mega Revisão Investimentos + alocação estratégica x tática, rebalanceamento, tributação e investimentos no exterior. 40 questões.", "r": "Playlist Mega Revisões CFP – TopInvest (YouTube)", "h": 4}, {"id": 35, "w": 6, "date": "2026-09-07", "dow": "Segunda", "m": "M4", "mn": "M4 – Planejamento de Aposentadoria", "t": "FERIADO (7/9) — Vol IV: Previdência Social (RGPS): filiação, contribuições, carências e salário de benefício", "r": "Apostila Vol IV", "h": 2.5}, {"id": 36, "w": 6, "date": "2026-09-08", "dow": "Terça", "m": "M4", "mn": "M4 – Planejamento de Aposentadoria", "t": "Vol IV — Regras de aposentadoria pós-EC 103/2019, regras de transição e cálculo do benefício", "r": "Apostila Vol IV", "h": 1.5}, {"id": 37, "w": 6, "date": "2026-09-09", "dow": "Quarta", "m": "M4", "mn": "M4 – Planejamento de Aposentadoria", "t": "Vol IV — Regimes próprios (RPPS); benefícios por incapacidade e pensão por morte", "r": "Apostila Vol IV", "h": 1.5}, {"id": 38, "w": 6, "date": "2026-09-10", "dow": "Quinta", "m": "M4", "mn": "M4 – Planejamento de Aposentadoria", "t": "Vol IV — Previdência complementar aberta: PGBL x VGBL, tábuas biométricas, tipos de renda", "r": "Apostila Vol IV", "h": 1.5}, {"id": 39, "w": 6, "date": "2026-09-11", "dow": "Sexta", "m": "M4", "mn": "M4 – Planejamento de Aposentadoria", "t": "Vol IV — Tributação regressiva x progressiva, portabilidade, resgates e benefício fiscal", "r": "Apostila Vol IV", "h": 1.5}, {"id": 40, "w": 6, "date": "2026-09-12", "dow": "Sábado", "m": "OFF", "mn": "Descanso", "t": "DESCANSO — noivo e missa", "r": "", "h": 0}, {"id": 41, "w": 6, "date": "2026-09-13", "dow": "Domingo", "m": "M4", "mn": "M4 – Planejamento de Aposentadoria", "t": "VÍDEO: Mega Revisão Aposentadoria + EFPC (planos BD/CD/CV), cálculo da necessidade de aposentadoria, taxa de reposição e taxa de retirada segura. 30 questões.", "r": "Playlist Mega Revisões CFP – TopInvest (YouTube)", "h": 4}, {"id": 42, "w": 7, "date": "2026-09-14", "dow": "Segunda", "m": "M5", "mn": "M5 – Seguros e Gestão de Riscos", "t": "Vol V — Processo de gestão de riscos: identificar, mensurar e tratar (evitar, reter, reduzir, transferir)", "r": "Apostila Vol V", "h": 1.5}, {"id": 43, "w": 7, "date": "2026-09-15", "dow": "Terça", "m": "M5", "mn": "M5 – Seguros e Gestão de Riscos", "t": "Vol V — Contrato de seguro: elementos, risco, prêmio, sinistro, franquia, agravamento e perda de direito", "r": "Apostila Vol V", "h": 1.5}, {"id": 44, "w": 7, "date": "2026-09-16", "dow": "Quarta", "m": "M5", "mn": "M5 – Seguros e Gestão de Riscos", "t": "Vol V — Seguros de pessoas: vida, invalidez, DIT; cálculo da necessidade de capital segurado", "r": "Apostila Vol V", "h": 1.5}, {"id": 45, "w": 7, "date": "2026-09-17", "dow": "Quinta", "m": "M5", "mn": "M5 – Seguros e Gestão de Riscos", "t": "Vol V — Saúde suplementar e ANS; seguros patrimoniais: residencial e automóvel", "r": "Apostila Vol V", "h": 1.5}, {"id": 46, "w": 7, "date": "2026-09-18", "dow": "Sexta", "m": "M5", "mn": "M5 – Seguros e Gestão de Riscos", "t": "Vol V — Responsabilidade civil, D&O, resseguro, títulos de capitalização; SUSEP e regulação", "r": "Apostila Vol V", "h": 1.5}, {"id": 47, "w": 7, "date": "2026-09-19", "dow": "Sábado", "m": "OFF", "mn": "Descanso", "t": "DESCANSO — noivo e missa", "r": "", "h": 0}, {"id": 48, "w": 7, "date": "2026-09-20", "dow": "Domingo", "m": "M5", "mn": "M5 – Seguros e Gestão de Riscos", "t": "VÍDEO: Mega Revisão Seguros e Gestão de Riscos + exercícios de fixação do Vol V. 30 questões.", "r": "Playlist Mega Revisões CFP – TopInvest (YouTube)", "h": 4}, {"id": 49, "w": 8, "date": "2026-09-21", "dow": "Segunda", "m": "M6", "mn": "M6 – Planejamento Tributário", "t": "Vol VI — Sistema tributário nacional: espécies tributárias, competências e princípios", "r": "Apostila Vol VI", "h": 1.5}, {"id": 50, "w": 8, "date": "2026-09-22", "dow": "Terça", "m": "M6", "mn": "M6 – Planejamento Tributário", "t": "Vol VI — IRPF: modelo completo x simplificado, deduções, carnê-leão, tabelas e ajuste anual", "r": "Apostila Vol VI", "h": 1.5}, {"id": 51, "w": 8, "date": "2026-09-23", "dow": "Quarta", "m": "M6", "mn": "M6 – Planejamento Tributário", "t": "Vol VI — Ganho de capital: imóveis (isenções e fatores de redução), ações e bens no exterior", "r": "Apostila Vol VI", "h": 1.5}, {"id": 52, "w": 8, "date": "2026-09-24", "dow": "Quinta", "m": "M6", "mn": "M6 – Planejamento Tributário", "t": "Vol VI — Tributação dos investimentos: RF, RV, fundos, come-cotas, IOF, day trade e compensação de perdas", "r": "Apostila Vol VI", "h": 1.5}, {"id": 53, "w": 8, "date": "2026-09-25", "dow": "Sexta", "m": "M6", "mn": "M6 – Planejamento Tributário", "t": "Vol VI — Tributação da PJ (Simples, presumido, real), pró-labore x dividendos; offshore (Lei 14.754/2023)", "r": "Apostila Vol VI", "h": 1.5}, {"id": 54, "w": 8, "date": "2026-09-26", "dow": "Sábado", "m": "OFF", "mn": "Descanso", "t": "DESCANSO — noivo e missa", "r": "", "h": 0}, {"id": 55, "w": 8, "date": "2026-09-27", "dow": "Domingo", "m": "M6", "mn": "M6 – Planejamento Tributário", "t": "VÍDEO: Mega Revisão Planejamento Tributário + Reforma Tributária (EC 132/2023: IBS, CBS, IS) + elisão x evasão. 35 questões.", "r": "Playlist Mega Revisões CFP – TopInvest (YouTube)", "h": 4}, {"id": 56, "w": 9, "date": "2026-09-28", "dow": "Segunda", "m": "M7", "mn": "M7 – Patrimonial e Sucessório", "t": "Vol VII — Regimes de bens, casamento e união estável; direito de família aplicado ao planejamento", "r": "Apostila Vol VII", "h": 1.5}, {"id": 57, "w": 9, "date": "2026-09-29", "dow": "Terça", "m": "M7", "mn": "M7 – Patrimonial e Sucessório", "t": "Vol VII — Sucessão legítima e testamentária: herdeiros necessários, legítima, testamento e codicilo. (Semana Intensiva TopInvest 29/09–04/10: assista à aula ao vivo do seu módulo mais fraco.)", "r": "Apostila Vol VII + Semana Intensiva", "h": 1.5}, {"id": 58, "w": 9, "date": "2026-09-30", "dow": "Quarta", "m": "M7", "mn": "M7 – Patrimonial e Sucessório", "t": "Vol VII — Inventário judicial x extrajudicial, ITCMD, custos, prazos e planejamento de liquidez", "r": "Apostila Vol VII", "h": 1.5}, {"id": 59, "w": 9, "date": "2026-10-01", "dow": "Quinta", "m": "M7", "mn": "M7 – Patrimonial e Sucessório", "t": "Vol VII — Doação com reserva de usufruto, holding familiar, seguro de vida e previdência como ferramentas sucessórias", "r": "Apostila Vol VII", "h": 1.5}, {"id": 60, "w": 9, "date": "2026-10-02", "dow": "Sexta", "m": "M7", "mn": "M7 – Patrimonial e Sucessório", "t": "Vol VII — Bens e estruturas no exterior, trusts; planejamento para pessoa com deficiência", "r": "Apostila Vol VII", "h": 1.5}, {"id": 61, "w": 9, "date": "2026-10-03", "dow": "Sábado", "m": "OFF", "mn": "Descanso", "t": "DESCANSO — noivo e missa", "r": "", "h": 0}, {"id": 62, "w": 9, "date": "2026-10-04", "dow": "Domingo", "m": "M8", "mn": "M8 – Psicologia no Planej. Financeiro", "t": "Vol VIII — Finanças comportamentais: heurísticas e vieses, teoria do prospecto, money scripts, aconselhamento e coaching. 25 questões.", "r": "Apostila Vol VIII", "h": 4}, {"id": 63, "w": 10, "date": "2026-10-05", "dow": "Segunda", "m": "M8", "mn": "M8 – Psicologia no Planej. Financeiro", "t": "Vol VIII — Fechamento: dinâmica familiar e dinheiro, gestão de conflitos, decisão sob incerteza + exercícios de fixação", "r": "Apostila Vol VIII", "h": 1.5}, {"id": 64, "w": 10, "date": "2026-10-06", "dow": "Terça", "m": "REV", "mn": "Revisão / Simulados", "t": "REVISÃO M1 — Código de Ética e as 6 etapas do processo. Reler o resumo + flashcards da lista de erros.", "r": "Resumos + lista de erros", "h": 1.5}, {"id": 65, "w": 10, "date": "2026-10-07", "dow": "Quarta", "m": "REV", "mn": "Revisão / Simulados", "t": "REVISÃO VDT + M2 — 40 exercícios de calculadora: VF, VP, anuidades, TIR, VPL, Price e SAC", "r": "Calculadora + banco de questões", "h": 1.5}, {"id": 66, "w": 10, "date": "2026-10-08", "dow": "Quinta", "m": "REV", "mn": "Revisão / Simulados", "t": "REVISÃO M3 e M4 — resumos + refazer as questões erradas", "r": "Resumos + lista de erros", "h": 1.5}, {"id": 67, "w": 10, "date": "2026-10-09", "dow": "Sexta", "m": "REV", "mn": "Revisão / Simulados", "t": "REVISÃO M5 e M6 — resumos + refazer as questões erradas", "r": "Resumos + lista de erros", "h": 1.5}, {"id": 68, "w": 10, "date": "2026-10-10", "dow": "Sábado", "m": "OFF", "mn": "Descanso", "t": "DESCANSO — noivo e missa", "r": "", "h": 0}, {"id": 69, "w": 10, "date": "2026-10-11", "dow": "Domingo", "m": "REV", "mn": "Revisão / Simulados", "t": "SIMULADO COMPLETO 1 — 140 questões cronometradas. Corrigir e lançar os acertos por módulo na aba Simulados.", "r": "Simulados TopInvest / Planejar", "h": 6}, {"id": 70, "w": 11, "date": "2026-10-12", "dow": "Segunda", "m": "REV", "mn": "Revisão / Simulados", "t": "FERIADO (12/10) — Correção detalhada do Simulado 1. Listar os 3 módulos mais fracos.", "r": "Simulado 1", "h": 2.5}, {"id": 71, "w": 11, "date": "2026-10-13", "dow": "Terça", "m": "REV", "mn": "Revisão / Simulados", "t": "REVISÃO DIRIGIDA — módulo mais fraco #1", "r": "Resumo + questões do módulo", "h": 1.5}, {"id": 72, "w": 11, "date": "2026-10-14", "dow": "Quarta", "m": "REV", "mn": "Revisão / Simulados", "t": "REVISÃO DIRIGIDA — módulo mais fraco #2", "r": "Resumo + questões do módulo", "h": 1.5}, {"id": 73, "w": 11, "date": "2026-10-15", "dow": "Quinta", "m": "REV", "mn": "Revisão / Simulados", "t": "SIMULADO COMPLETO 2 (ou 70 questões) + correção imediata", "r": "Simulados TopInvest / Planejar", "h": 3}, {"id": 74, "w": 11, "date": "2026-10-16", "dow": "Sexta", "m": "REV", "mn": "Revisão / Simulados", "t": "REVISÃO DIRIGIDA — módulo mais fraco #3 + montar a folha de fórmulas de 1 página", "r": "Resumo + fórmulas", "h": 1.5}, {"id": 75, "w": 11, "date": "2026-10-17", "dow": "Sábado", "m": "OFF", "mn": "Descanso", "t": "DESCANSO — noivo e missa. À noite: conferir documento com foto, endereço e horário da prova, calculadora e pilhas. Dormir cedo.", "r": "", "h": 0}, {"id": 76, "w": 11, "date": "2026-10-18", "dow": "Domingo", "m": "REV", "mn": "Revisão / Simulados", "t": "PROVA CFP® — 140 questões, 7 horas. Meta: ≥70% no total e ≥50% em cada um dos 8 módulos. Boa prova, Fer!", "r": "", "h": 0}], "weekTitles": {"1": "Módulo 1 — a profissão, o processo e a ética", "2": "Módulo 1 — ambiente regulatório, compliance e Valor do Dinheiro no Tempo", "3": "Fecha o Módulo 1 · entra o Módulo 2 (Gestão Financeira)", "4": "Módulo 2 — dívidas e amortização · começa o Módulo 3", "5": "Módulo 3 — Investimentos e Gestão de Ativos", "6": "Módulo 4 — Planejamento de Aposentadoria", "7": "Módulo 5 — Seguros e Gestão de Riscos", "8": "Módulo 6 — Planejamento Tributário", "9": "Módulo 7 — Patrimonial e Sucessório · Módulo 8 (Psicologia)", "10": "Revisão geral + Simulado Completo 1", "11": "Reta final — revisão dirigida, Simulado 2 e prova"}, "modNames": {"M1": "Planejamento Financeiro", "M2": "Gestão Financeira", "M3": "Investimentos", "M4": "Aposentadoria", "M5": "Seguros e Riscos", "M6": "Tributário", "M7": "Sucessório", "M8": "Psicologia", "REV": "Revisão/Simulados", "OFF": "Descanso"}, "colors": {"M1": "#0F3A5C", "M2": "#1D8C7E", "M3": "#2F6FB0", "M4": "#8A5CB8", "M5": "#C2761F", "M6": "#B03A48", "M7": "#4A7C3F", "M8": "#7A5CA8", "REV": "#E8446E", "OFF": "#9AA7B2"}, "seedQ": [{"m": "M1", "q": "O planejador financeiro acaba de reunir extratos, apólices, declaração de IR e a lista de objetivos de um novo cliente. Segundo o processo de planejamento financeiro em seis etapas, qual é a etapa IMEDIATAMENTE seguinte?", "o": ["Analisar e avaliar a situação financeira do cliente", "Implementar as recomendações", "Estabelecer e definir o relacionamento com o cliente", "Revisar a situação do cliente"], "a": 0, "e": "A ordem é: (1) estabelecer e definir o relacionamento, (2) coletar as informações, (3) analisar e avaliar a situação, (4) desenvolver e apresentar as recomendações, (5) implementar, (6) revisar. Coletados os dados, o passo seguinte é analisar — nunca partir direto para a recomendação.", "id": "s0"}, {"m": "M1", "q": "Um cliente pede um produto específico que o planejador considera inadequado ao seu perfil, mas insiste na aplicação. A conduta alinhada ao princípio de colocar o cliente em primeiro lugar é:", "o": ["Executar a ordem sem comentários, pois a decisão é do cliente", "Recusar-se a atender e encerrar o relacionamento imediatamente", "Registrar por escrito a inadequação e a recomendação divergente antes de qualquer execução", "Executar a ordem e depois informar a inadequação"], "a": 2, "e": "O dever não é decidir pelo cliente, e sim garantir decisão informada e deixar registro. Documentar a divergência protege o cliente e o profissional. Executar antes de informar inverte a ordem do dever.", "id": "s1"}, {"m": "M1", "q": "Qual o valor futuro de R$ 10.000,00 aplicados por 3 anos a 10% a.a., em juros compostos?", "o": ["R$ 13.000,00", "R$ 13.310,00", "R$ 13.100,00", "R$ 12.100,00"], "a": 1, "e": "VF = 10.000 × (1,10)³ = 10.000 × 1,331 = R$ 13.310,00. R$ 13.000 seria juros simples. Na HP-12C: 10000 CHS PV, 10 i, 3 n, FV.", "id": "s2"}, {"m": "M1", "q": "Com taxa nominal de 10% a.a. e inflação de 4% a.a., a taxa real, pela equação de Fisher, é:", "o": ["6,00%", "5,77%", "14,40%", "4,00%"], "a": 1, "e": "Taxa real = (1,10 ÷ 1,04) − 1 = 5,77%. A subtração simples (6%) é atalho impreciso e costuma ser a alternativa-armadilha. Fórmula de Fisher.", "id": "s3"}, {"m": "M1", "q": "Um projeto exige desembolso de R$ 50.000 hoje e devolve R$ 20.000 ao fim de cada um dos 3 anos seguintes. A uma taxa de desconto de 8% a.a., o VPL é:", "o": ["Positivo, portanto o projeto agrega valor", "Negativo, portanto o projeto destrói valor", "Exatamente zero", "Indeterminado sem conhecer a TIR"], "a": 0, "e": "VP das entradas = 20.000 × [(1−1,08⁻³)÷0,08] ≈ R$ 51.542. VPL ≈ +R$ 1.542, positivo. Regra: VPL > 0 significa retorno acima da taxa exigida.", "id": "s4"}, {"m": "M1", "q": "Um gestor recebe ordem de compra grande de um cliente e, antes de executá-la, compra o mesmo ativo na própria conta para se beneficiar da alta que a ordem provocará. Essa prática é:", "o": ["Insider trading", "Front running", "Market spoofing", "Layering"], "a": 1, "e": "Front running é antecipar-se à ordem do cliente em benefício próprio. Insider trading usa informação privilegiada não pública sobre a companhia. Spoofing e layering são manipulações via ordens falsas no livro.", "id": "s5"}, {"m": "M1", "q": "O dever de suitability consiste em:", "o": ["Garantir ao cliente o retorno projetado na proposta", "Verificar a adequação do produto ao perfil, objetivos e situação financeira do cliente", "Oferecer sempre o produto de menor custo disponível", "Assegurar que o cliente leia integralmente o prospecto"], "a": 1, "e": "Suitability é adequação — perfil, objetivos, horizonte e capacidade de assumir riscos. Não é garantia de retorno, nem obrigação de escolher o mais barato (embora o custo entre na análise).", "id": "s6"}, {"m": "M1", "q": "Sobre política monetária no Brasil, é correto afirmar:", "o": ["A meta de inflação é definida pelo Copom", "A elevação da taxa Selic tende a estimular o consumo no curto prazo", "O recolhimento compulsório é instrumento de política monetária", "O IGP-M é o índice oficial usado no regime de metas de inflação"], "a": 2, "e": "Os instrumentos clássicos são: operações de mercado aberto, redesconto e depósito compulsório. A meta de inflação é definida pelo CMN (o Copom define a Selic para persegui-la); elevar a Selic contrai o consumo; o índice oficial das metas é o IPCA.", "id": "s7"}, {"m": "M1", "q": "A diferença essencial entre um planejador financeiro CFP® e um consultor de produtos financeiros é que o planejador:", "o": ["Só pode atender clientes de alta renda", "Atua de forma integrada sobre todas as áreas da vida financeira do cliente", "É obrigatoriamente vinculado a uma instituição financeira", "Não pode recomendar produtos específicos"], "a": 1, "e": "O diferencial é a visão integrada — fluxo de caixa, riscos, investimentos, aposentadoria, tributos e sucessão — em vez do foco na venda ou seleção de um produto isolado.", "id": "s8"}, {"m": "M2", "q": "Uma cliente tem despesas mensais essenciais de R$ 6.000 e despesas totais de R$ 9.000. É servidora pública estável. Qual alternativa dimensiona a reserva de emergência corretamente, sobre a base adequada?", "o": ["R$ 54.000, equivalente a 6 meses das despesas totais", "Entre R$ 18.000 e R$ 24.000, equivalentes a 3 a 4 meses das despesas essenciais", "R$ 6.000, equivalente a 1 mês", "R$ 108.000, equivalente a 12 meses das despesas totais"], "a": 1, "e": "A base correta são as despesas ESSENCIAIS, não as totais, e o número de meses é modulado pela estabilidade da renda: renda estável admite 3 a 6 meses; autônomos e renda variável pedem 6 a 12 meses.", "id": "s9"}, {"m": "M2", "q": "Comparando um financiamento pela Tabela Price e outro pelo SAC, de mesmo valor, prazo e taxa:", "o": ["A Price tem prestação constante e o SAC tem amortização constante", "Ambos têm prestação constante, mudando só a amortização", "O SAC tem prestação crescente ao longo do tempo", "A Price paga menos juros totais que o SAC"], "a": 0, "e": "Price: prestação constante, amortização crescente, juros decrescentes. SAC: amortização constante, prestação decrescente. O SAC amortiza mais rápido no início e por isso paga MENOS juros no total.", "id": "s10"}, {"m": "M2", "q": "A taxa de poupança de um cliente que recebe R$ 12.000 líquidos e gasta R$ 9.600 por mês é:", "o": ["12,5%", "20,0%", "25,0%", "80,0%"], "a": 1, "e": "Taxa de poupança = (12.000 − 9.600) ÷ 12.000 = 2.400 ÷ 12.000 = 20%. É um dos indicadores centrais do diagnóstico de fluxo de caixa.", "id": "s11"}, {"m": "M2", "q": "O Custo Efetivo Total (CET) de uma operação de crédito:", "o": ["Corresponde apenas à taxa de juros nominal contratada", "Inclui juros, tarifas, tributos, seguros e demais encargos da operação", "É sempre inferior à taxa de juros anunciada", "Só se aplica a financiamento imobiliário"], "a": 1, "e": "O CET expressa o custo total anualizado, somando tudo que o cliente efetivamente paga. É a única base honesta para comparar propostas de crédito.", "id": "s12"}, {"m": "M2", "q": "No balanço patrimonial pessoal, um imóvel financiado ainda em pagamento deve ser registrado:", "o": ["Somente pelo saldo já amortizado", "No ativo pelo valor de mercado e no passivo pelo saldo devedor", "Apenas no passivo, até a quitação", "Fora do balanço, por não ser um bem livre"], "a": 1, "e": "O bem entra no ativo a valor de mercado e a dívida no passivo pelo saldo devedor. A diferença é o patrimônio líquido — registrar só um dos lados distorce o diagnóstico.", "id": "s13"}, {"m": "M3", "q": "Sobre a relação entre preço e taxa de um título de renda fixa prefixado:", "o": ["Preço e taxa se movem na mesma direção", "Alta da taxa de juros de mercado reduz o preço do título", "Títulos de maior duration são menos sensíveis à variação de juros", "A marcação a mercado só afeta quem carrega o título até o vencimento"], "a": 1, "e": "A relação é inversa: taxa sobe, preço cai. E quanto maior a duration, MAIOR a sensibilidade. Quem carrega até o vencimento recebe a taxa contratada — a marcação afeta quem vende antes.", "id": "s14"}, {"m": "M3", "q": "Uma carteira rendeu 14% no ano, com desvio-padrão de 8%. O ativo livre de risco rendeu 10%. O Índice de Sharpe é:", "o": ["0,50", "1,75", "0,29", "1,40"], "a": 0, "e": "Sharpe = (14% − 10%) ÷ 8% = 0,50. Mede o prêmio de risco por unidade de risco TOTAL (desvio-padrão). O Treynor usa o beta, ou seja, o risco sistemático.", "id": "s15"}, {"m": "M3", "q": "A diversificação de uma carteira de ações:", "o": ["Elimina tanto o risco sistemático quanto o não sistemático", "Reduz o risco não sistemático, mas não elimina o risco sistemático", "Elimina o risco de mercado se houver ativos suficientes", "Não altera o risco total da carteira"], "a": 1, "e": "Risco não sistemático (específico da empresa/setor) é diversificável. Risco sistemático (de mercado) atinge todos os ativos e não se elimina diversificando — só se reduz com hedge ou mudança de classe de ativo.", "id": "s16"}, {"m": "M3", "q": "Um beta de 1,3 indica que a ação:", "o": ["Rende 30% acima do mercado, com certeza", "Tende a oscilar 1,3 vez a variação do mercado", "Tem 30% mais risco específico que a média", "Tem correlação de 1,3 com o mercado"], "a": 1, "e": "Beta mede sensibilidade ao mercado: se o mercado sobe 10%, espera-se +13%; se cai 10%, espera-se −13%. Não é promessa de retorno superior, e correlação nunca passa de 1.", "id": "s17"}, {"m": "M3", "q": "Sobre a tributação de investimentos de pessoa física, é correto:", "o": ["LCI e LCA são isentas de IR para pessoa física", "CDB tem alíquota fixa de 15% independentemente do prazo", "Fundos de ações sofrem come-cotas em maio e novembro", "Debêntures comuns são sempre isentas de IR"], "a": 0, "e": "LCI, LCA, CRI, CRA, poupança e debêntures incentivadas (Lei 12.431) são isentas para PF. CDB segue a tabela regressiva de 22,5% a 15%. Fundos de ações não sofrem come-cotas. Atenção: a Lei 14.754/2023 estendeu a tributação periódica de maio e novembro também aos fundos FECHADOS — antes restrita aos abertos. Debênture comum é tributada.", "id": "s18"}, {"m": "M3", "q": "Um investidor vende R$ 18.000 em ações no mercado à vista em operações comuns num mês, com lucro de R$ 3.000. Sobre o IR:", "o": ["Há isenção, pois as vendas no mês ficaram abaixo de R$ 20.000", "Incide 15% sobre o lucro, sem isenção", "Incide 20% sobre o lucro, por ser renda variável", "Incide 15% sobre o valor total da venda"], "a": 0, "e": "A isenção alcança vendas de até R$ 20.000 por mês em ações no mercado à vista, em operações comuns. Atenção: o limite olha o total VENDIDO, não o lucro, e não vale para day trade (20%) nem para FIIs.", "id": "s19"}, {"m": "M3", "q": "Um título zero-cupom com vencimento em 4 anos tem duration de Macaulay igual a:", "o": ["Menos de 4 anos, pelo efeito dos cupons", "Exatamente 4 anos", "Mais de 4 anos", "Indeterminada sem a taxa de juros"], "a": 1, "e": "Sem cupons, há um único fluxo, no vencimento — a duration coincide com o prazo. Títulos com cupom têm duration MENOR que o prazo, porque parte do fluxo chega antes.", "id": "s20"}, {"m": "M4", "q": "Uma cliente declara IR pelo modelo completo e quer reduzir a base tributável no ano. Entre previdência complementar, o instrumento adequado e seu limite são:", "o": ["VGBL, dedutível até 12% da renda bruta tributável", "PGBL, dedutível até 12% da renda bruta tributável", "PGBL, dedutível até 20% da renda bruta tributável", "VGBL, dedutível sem limite"], "a": 1, "e": "Só o PGBL é dedutível, até 12% da renda bruta tributável anual, e apenas para quem declara pelo modelo completo. No resgate do PGBL o IR incide sobre o TOTAL; no VGBL, apenas sobre o rendimento.", "id": "s21"}, {"m": "M4", "q": "Na tabela regressiva de tributação da previdência complementar, a alíquota mínima e o prazo para alcançá-la são:", "o": ["15% após 8 anos", "10% após 10 anos", "10% após 6 anos", "5% após 12 anos"], "a": 1, "e": "A regressiva começa em 35% (até 2 anos) e cai 5 pontos a cada 2 anos, chegando a 10% depois de 10 anos de acumulação. É a escolha natural para objetivo de longo prazo.", "id": "s22"}, {"m": "M4", "q": "Após a EC 103/2019, a idade mínima da aposentadoria programada no RGPS, na regra permanente para trabalhadores urbanos, é:", "o": ["60 anos para homens e 55 para mulheres", "65 anos para homens e 62 para mulheres", "65 anos para ambos", "62 anos para ambos"], "a": 1, "e": "A reforma de 2019 fixou 65 anos (homens) e 62 anos (mulheres) para o trabalhador urbano, com carência de 15 anos (mulheres e homens já filiados antes de 13/11/2019) ou 20 anos (homens filiados depois). Trabalhadores rurais mantêm 60/55. Há ainda cinco regras de transição.", "id": "s23"}, {"m": "M4", "q": "Um cliente quer renda de R$ 10.000 por mês na aposentadoria e hoje ganha R$ 16.000. A taxa de reposição pretendida é:", "o": ["62,5%", "160,0%", "37,5%", "10,0%"], "a": 0, "e": "Taxa de reposição = renda desejada ÷ renda atual = 10.000 ÷ 16.000 = 62,5%. Costuma ficar abaixo de 100% porque despesas como filhos, financiamento e a própria poupança para aposentadoria deixam de existir.", "id": "s24"}, {"m": "M4", "q": "Sobre planos de previdência fechada (EFPC), na modalidade de Contribuição Definida (CD):", "o": ["O benefício é conhecido de antemão e o risco atuarial é do patrocinador", "O benefício depende do saldo acumulado e do retorno dos investimentos", "Não há contribuição do participante", "O benefício é sempre vitalício e reajustado pelo INPC"], "a": 1, "e": "No CD, o risco de investimento é do participante e o benefício resulta do saldo acumulado. No Benefício Definido (BD), o valor é pactuado e o risco atuarial recai sobre o plano/patrocinador. O CV combina as duas lógicas.", "id": "s25"}, {"m": "M5", "q": "Um risco de baixa frequência e alta severidade, como a destruição total do imóvel residencial, deve ser preferencialmente:", "o": ["Retido, pela baixa probabilidade", "Transferido via seguro", "Evitado, deixando de possuir imóvel", "Reduzido apenas com medidas de prevenção"], "a": 1, "e": "É o caso clássico de transferência via seguro: o cliente não suportaria a perda, mas o prêmio é acessível justamente porque a frequência é baixa. Retenção cabe a eventos frequentes e de baixa severidade.", "id": "s26"}, {"m": "M5", "q": "Sobre o cálculo da necessidade de capital em seguro de vida pelo método das necessidades:", "o": ["Corresponde a um múltiplo fixo do salário anual, geralmente 10 vezes", "Resulta das necessidades financeiras futuras da família menos os recursos já existentes", "Equivale ao patrimônio líquido atual do segurado", "Deve igualar o valor total das dívidas do segurado"], "a": 1, "e": "Levantam-se as necessidades (dívidas a quitar, educação dos filhos, manutenção do padrão por N anos, custos finais) e subtraem-se os recursos disponíveis (investimentos, seguros existentes, benefícios previdenciários). O múltiplo do salário é regra de bolso, não método técnico.", "id": "s27"}, {"m": "M5", "q": "Em um seguro de dano com franquia dedutível de R$ 3.000 e prejuízo indenizável de R$ 10.000, a indenização será de:", "o": ["R$ 10.000", "R$ 7.000", "R$ 3.000", "R$ 13.000"], "a": 1, "e": "Na franquia dedutível, a seguradora paga o que exceder o valor da franquia: 10.000 − 3.000 = R$ 7.000. A franquia participa o segurado no prejuízo e reduz o prêmio.", "id": "s28"}, {"m": "M5", "q": "O princípio indenizatório, aplicável aos seguros de dano, estabelece que:", "o": ["A indenização pode superar o prejuízo se o prêmio pago for maior", "A indenização não pode gerar lucro ao segurado, limitando-se ao prejuízo", "O segurado pode acumular indenizações de várias apólices pelo mesmo dano", "A seguradora deve indenizar o valor de novo, sempre"], "a": 1, "e": "O seguro de dano recompõe a perda, não enriquece o segurado — daí o limite ao prejuízo efetivo e a vedação ao sobresseguro lucrativo. Seguros de pessoas seguem lógica diferente, de capital contratado.", "id": "s29"}, {"m": "M5", "q": "A entidade responsável pela regulação e fiscalização do mercado de seguros, previdência complementar aberta e capitalização no Brasil é:", "o": ["ANS", "PREVIC", "SUSEP", "CVM"], "a": 2, "e": "SUSEP regula seguros, previdência aberta e capitalização. A PREVIC fiscaliza a previdência fechada (fundos de pensão), a ANS os planos de saúde e a CVM o mercado de valores mobiliários.", "id": "s30"}, {"m": "M6", "q": "Um cliente vende seu único imóvel residencial por R$ 400.000 e não realizou outra alienação de imóvel nos últimos cinco anos. Sobre o ganho de capital:", "o": ["Há isenção, por ser único imóvel alienado por valor até R$ 440.000", "Incide IR de 15% sobre o ganho, sem exceção", "A isenção depende de aplicar o valor em outro imóvel em 180 dias", "Incide IR de 15% sobre o valor total da venda"], "a": 0, "e": "São duas isenções distintas. Uma: único imóvel de até R$ 440.000, desde que não haja outra alienação nos 5 anos anteriores. Outra (Lei 11.196/2005): aplicar o produto da venda de imóvel residencial em outro residencial no Brasil em 180 dias.", "id": "s31"}, {"m": "M6", "q": "A distinção entre elisão e evasão fiscal está em que a elisão:", "o": ["Ocorre após o fato gerador, mediante omissão de informação", "É lícita e se organiza antes da ocorrência do fato gerador", "É sempre questionada e desconsiderada pela Receita Federal", "Aplica-se apenas a pessoas jurídicas"], "a": 1, "e": "Elisão é planejamento lícito, estruturado antes do fato gerador, com propósito negocial. Evasão é ilícita e normalmente posterior ao fato gerador (omissão, fraude, simulação). Elusão fica na zona cinzenta do abuso de forma.", "id": "s32"}, {"m": "M6", "q": "A EC 132/2023 (Reforma Tributária do consumo) instituiu:", "o": ["IBS estadual/municipal, CBS federal e Imposto Seletivo", "Apenas um imposto único federal, substituindo todos os tributos", "IVA único gerido exclusivamente pela União", "A extinção do ITCMD"], "a": 0, "e": "O modelo é dual: IBS (estados e municípios, substituindo ICMS e ISS), CBS (federal, substituindo PIS e Cofins) e o Imposto Seletivo sobre bens nocivos à saúde e ao meio ambiente. O ITCMD não foi extinto — passou a ter progressividade obrigatória.", "id": "s33"}, {"m": "M6", "q": "Sobre a tributação de day trade em ações para pessoa física:", "o": ["Alíquota de 15% e isenção até R$ 20.000 de vendas no mês", "Alíquota de 20%, sem a isenção mensal", "Isenta, por se tratar de operação de curtíssimo prazo", "Alíquota de 22,5%, conforme tabela regressiva"], "a": 1, "e": "Day trade: 20% sobre o ganho líquido, com IRRF de 1% na fonte e SEM a isenção de R$ 20.000. Operações comuns: 15%, com a isenção mensal. Perdas de day trade só compensam ganhos de day trade.", "id": "s34"}, {"m": "M6", "q": "Um cliente sócio de empresa no Lucro Presumido quer otimizar a retirada. Considerando pró-labore e distribuição de lucros:", "o": ["O pró-labore não sofre incidência de INSS", "A distribuição de lucros apurados contabilmente é isenta de IR na PF até R$ 50 mil por mês, por fonte pagadora", "O pró-labore é sempre mais eficiente tributariamente", "Distribuição de lucros exige recolhimento de INSS pelo sócio"], "a": 1, "e": "Lucros com escrituração regular não sofrem INSS. Atenção à mudança: pela Lei 15.270/2025, desde 1º/1/2026 a isenção de IR vale até R$ 50 mil por mês por fonte pagadora; acima disso, retenção de 10% na fonte (compensável no ajuste anual), além do IRPFM sobre rendas anuais acima de R$ 600 mil. Há regra de transição para lucros aprovados até 31/12/2025. O pró-labore é salário do sócio: INSS + IRPF progressivo, e sua existência é o que garante a cobertura previdenciária.", "id": "s35"}, {"m": "M7", "q": "São herdeiros necessários, nos termos do Código Civil:", "o": ["Descendentes, ascendentes e cônjuge", "Apenas os descendentes", "Descendentes, ascendentes, cônjuge e irmãos", "Qualquer parente até o quarto grau"], "a": 0, "e": "Art. 1.845 do Código Civil: descendentes, ascendentes e cônjuge. O STF (RE 878.694) equiparou o companheiro em união estável ao cônjuge para fins sucessórios. Irmãos e colaterais herdam só na falta dos anteriores e NÃO são necessários — podem ser afastados por testamento.", "id": "s36"}, {"m": "M7", "q": "Um cliente com dois filhos quer destinar parte do patrimônio por testamento a uma instituição de caridade. O limite máximo é:", "o": ["100% do patrimônio", "50% do patrimônio, preservada a legítima", "25% do patrimônio", "Nada, na existência de herdeiros necessários"], "a": 1, "e": "Havendo herdeiros necessários, metade do patrimônio é a legítima e não pode ser disposta por testamento. A parte disponível — os outros 50% — pode ir a quem o testador quiser.", "id": "s37"}, {"m": "M7", "q": "No regime da comunhão parcial de bens, integra o patrimônio comum:", "o": ["Todos os bens de cada cônjuge, anteriores e posteriores ao casamento", "Os bens adquiridos onerosamente durante o casamento", "Apenas os bens registrados em nome de ambos", "Os bens recebidos por herança durante o casamento"], "a": 1, "e": "Comunicam-se os bens adquiridos onerosamente na constância do casamento. Ficam fora os anteriores e os recebidos a título gratuito (herança e doação), mesmo durante o casamento — é o regime legal supletivo no Brasil.", "id": "s38"}, {"m": "M7", "q": "Sobre o capital de seguro de vida pago aos beneficiários no falecimento do segurado:", "o": ["Integra o inventário e se sujeita à partilha", "Não se considera herança, nos termos do Código Civil", "Sujeita-se sempre ao ITCMD como os demais bens", "Só é devido se houver testamento designando os beneficiários"], "a": 1, "e": "Art. 794 do Código Civil: o capital estipulado não se considera herança para nenhum efeito legal. Vai direto aos beneficiários, fora do inventário — o que faz do seguro uma ferramenta de liquidez sucessória.", "id": "s39"}, {"m": "M7", "q": "O inventário extrajudicial, por escritura pública, é possível quando:", "o": ["Há herdeiros menores, desde que representados", "Todos os herdeiros são capazes e concordes, com assistência de advogado", "Sempre, independentemente da existência de testamento", "O patrimônio é inferior a um teto legal em salários mínimos"], "a": 1, "e": "A regra-base é consenso entre herdeiros capazes, com advogado. Atenção à atualização: a Resolução CNJ 571/2024 passou a admitir a via extrajudicial mesmo havendo herdeiro menor ou incapaz (com partilha em frações ideais e manifestação favorável do Ministério Público) e mesmo havendo testamento (com autorização expressa do juízo sucessório). Havendo litígio, permanece obrigatória a via judicial.", "id": "s40"}, {"m": "M7", "q": "O ITCMD é imposto de competência:", "o": ["Federal, com alíquota uniforme no país", "Estadual, com alíquota limitada por teto fixado pelo Senado", "Municipal, como o ITBI", "Federal para heranças e estadual para doações"], "a": 1, "e": "ITCMD é estadual, com alíquota máxima definida por resolução do Senado. Por isso a carga varia entre estados, o que torna o domicílio um elemento relevante do planejamento sucessório.", "id": "s41"}, {"m": "M8", "q": "Um cliente se recusa a vender uma ação em prejuízo, dizendo que 'só vende quando voltar ao preço que pagou'. O viés predominante é:", "o": ["Excesso de confiança", "Aversão à perda, combinada com ancoragem no preço de compra", "Efeito manada", "Viés de disponibilidade"], "a": 1, "e": "A dor da perda realizada supera o ganho equivalente (aversão à perda, da teoria do prospecto) e o preço de compra funciona como âncora irrelevante para a decisão. O que importa é a perspectiva futura do ativo, não o preço pago.", "id": "s42"}, {"m": "M8", "q": "Segundo a teoria do prospecto, de Kahneman e Tversky:", "o": ["As pessoas avaliam resultados em termos de riqueza absoluta final", "As pessoas avaliam ganhos e perdas em relação a um ponto de referência, e sentem as perdas com mais intensidade", "As pessoas são consistentemente racionais e maximizam utilidade esperada", "O risco é percebido de forma idêntica em ganhos e em perdas"], "a": 1, "e": "Os dois achados centrais são a dependência de um ponto de referência e a assimetria: a perda pesa cerca de duas vezes o ganho equivalente. Daí a aversão ao risco em ganhos e a busca por risco no campo das perdas.", "id": "s43"}, {"m": "M8", "q": "Um cliente separa mentalmente 'o dinheiro da poupança', que jamais tocaria, e 'o dinheiro do bônus', que gasta com folga. Esse comportamento ilustra:", "o": ["Contabilidade mental", "Viés de confirmação", "Falácia do jogador", "Viés do status quo"], "a": 0, "e": "Contabilidade mental é tratar recursos fungíveis como se pertencessem a caixas separadas com regras próprias. Pode ajudar (reserva intocável) ou prejudicar (gastar o bônus mal enquanto se paga juros de dívida).", "id": "s44"}, {"m": "M8", "q": "No contexto do engajamento com o cliente, a escuta ativa se caracteriza por:", "o": ["Conduzir a conversa com perguntas fechadas para ganhar tempo", "Parafrasear e confirmar o entendimento, mantendo o foco no cliente", "Apresentar a solução técnica o quanto antes", "Evitar temas emocionais, restringindo-se aos números"], "a": 1, "e": "Escuta ativa envolve perguntas abertas, paráfrase, checagem de entendimento e atenção ao não verbal. As questões emocionais e familiares são justamente onde estão as informações que mudam o plano.", "id": "s45"}, {"m": "M8", "q": "Um cliente afirma ter 'certeza' de que escolhe bem suas ações porque acertou três operações seguidas. O planejador identifica:", "o": ["Aversão à ambiguidade", "Excesso de confiança, reforçado por viés de autoatribuição", "Efeito dotação", "Aversão ao arrependimento"], "a": 1, "e": "Excesso de confiança superestima a própria habilidade; o viés de autoatribuição credita os acertos à competência própria e os erros ao azar, em amostra pequena. Não confunda com viés retrospectivo, que é julgar o passado como se fosse previsível. Consequência típica: giro excessivo e concentração da carteira.", "id": "s46"}], "seedF": [{"m": "M1", "f": "As 6 etapas do processo de planejamento financeiro", "v": "1) Estabelecer e definir o relacionamento · 2) Coletar as informações · 3) Analisar e avaliar a situação · 4) Desenvolver e apresentar as recomendações · 5) Implementar · 6) Revisar", "id": "f0"}, {"m": "M1", "f": "Valor Futuro de um montante", "v": "VF = VP × (1 + i)ⁿ    |    HP-12C: VP (CHS) → i → n → FV", "id": "f1"}, {"m": "M1", "f": "Valor Presente de um montante", "v": "VP = VF ÷ (1 + i)ⁿ", "id": "f2"}, {"m": "M1", "f": "Valor Presente de uma anuidade (série uniforme)", "v": "VP = PMT × [1 − (1 + i)⁻ⁿ] ÷ i", "id": "f3"}, {"m": "M1", "f": "Valor Futuro de uma anuidade", "v": "VF = PMT × [(1 + i)ⁿ − 1] ÷ i", "id": "f4"}, {"m": "M1", "f": "Taxa real (equação de Fisher)", "v": "Taxa real = [(1 + taxa nominal) ÷ (1 + inflação)] − 1. Nunca subtraia direto — é a armadilha clássica.", "id": "f5"}, {"m": "M1", "f": "Taxas equivalentes (proporcional x efetiva)", "v": "(1 + i_ano) = (1 + i_mês)¹². Converter taxas por regra de três só vale para juros simples ou taxa nominal.", "id": "f6"}, {"m": "M1", "f": "TIR e VPL — regra de decisão", "v": "VPL > 0 → agrega valor (retorno acima da taxa exigida). TIR > taxa mínima de atratividade → aceita. Fluxos com sinais alternados podem ter TIRs múltiplas.", "id": "f7"}, {"m": "M1", "f": "Reguladores e o que cada um regula", "v": "CVM: valores mobiliários · BCB: instituições financeiras e política monetária · SUSEP: seguros, previdência aberta, capitalização · PREVIC: previdência fechada · ANS: planos de saúde", "id": "f8"}, {"m": "M1", "f": "Ilícitos de mercado", "v": "Insider trading: uso de informação privilegiada · Front running: antecipar-se à ordem do cliente · Spoofing: ordens falsas para induzir preço · Layering: camadas de ordens falsas no livro", "id": "f9"}, {"m": "M1", "f": "Instrumentos de política monetária", "v": "Operações de mercado aberto (open market) · Redesconto · Depósito compulsório. A meta de inflação é do CMN; o Copom define a Selic. Índice oficial: IPCA (IBGE).", "id": "f10"}, {"m": "M2", "f": "Taxa de poupança", "v": "(Receitas − Despesas) ÷ Receitas. Principal indicador da capacidade de acumulação.", "id": "f11"}, {"m": "M2", "f": "Reserva de emergência — dimensionamento", "v": "Base: despesas ESSENCIAIS mensais. Renda estável: 3 a 6 meses. Autônomo ou renda variável: 6 a 12 meses. Em liquidez imediata e baixo risco.", "id": "f12"}, {"m": "M2", "f": "SAC x Tabela Price", "v": "SAC: amortização constante, prestação decrescente, menos juros no total. Price: prestação constante, amortização crescente, juros decrescentes.", "id": "f13"}, {"m": "M2", "f": "CET — Custo Efetivo Total", "v": "Juros + tarifas + tributos + seguros + demais encargos, anualizado. É a única base válida para comparar propostas de crédito.", "id": "f14"}, {"m": "M2", "f": "Balanço patrimonial pessoal", "v": "Ativo (a valor de mercado) − Passivo (saldo devedor) = Patrimônio Líquido. Bem financiado entra nos DOIS lados.", "id": "f15"}, {"m": "M3", "f": "Preço x taxa em renda fixa", "v": "Relação INVERSA: taxa sobe, preço cai. Quanto maior a duration, maior a sensibilidade a juros.", "id": "f16"}, {"m": "M3", "f": "Duration de Macaulay", "v": "Prazo médio ponderado dos fluxos pelo valor presente. Zero-cupom: duration = prazo. Com cupom: duration < prazo.", "id": "f17"}, {"m": "M3", "f": "Índice de Sharpe", "v": "(Retorno da carteira − Ativo livre de risco) ÷ Desvio-padrão. Prêmio por unidade de risco TOTAL.", "id": "f18"}, {"m": "M3", "f": "Índice de Treynor", "v": "(Retorno da carteira − Ativo livre de risco) ÷ Beta. Prêmio por unidade de risco SISTEMÁTICO.", "id": "f19"}, {"m": "M3", "f": "CAPM", "v": "E(R) = Rf + β × (Rm − Rf). O retorno esperado remunera apenas o risco sistemático.", "id": "f20"}, {"m": "M3", "f": "Risco sistemático x não sistemático", "v": "Sistemático (de mercado): não se elimina por diversificação; é o que o beta mede. Não sistemático (específico): diversificável.", "id": "f21"}, {"m": "M3", "f": "Alfa de Jensen", "v": "Retorno obtido acima do previsto pelo CAPM. Alfa positivo indica desempenho superior ao esperado para o risco assumido.", "id": "f22"}, {"m": "M3", "f": "Isentos de IR para pessoa física", "v": "LCI · LCA · CRI · CRA · Poupança · Debêntures incentivadas (Lei 12.431). Dividendos: desde 1º/1/2026 (Lei 15.270/2025) isentos só até R$ 50 mil/mês por fonte pagadora — acima disso, 10% de IRRF.", "id": "f23"}, {"m": "M3", "f": "Come-cotas", "v": "Antecipação de IR em maio e novembro: 15% (longo prazo) ou 20% (curto prazo). Desde a Lei 14.754/2023 alcança fundos abertos E FECHADOS de RF e multimercado. Fora: FIA que cumpra os requisitos legais, FIP, ETF (exceto de RF) e FIDC como entidades de investimento; FII/Fiagro têm regime próprio.", "id": "f24"}, {"m": "M3", "f": "IR em ações — pessoa física", "v": "Operações comuns: 15%, com isenção se as vendas do mês somarem até R$ 20.000 (mercado à vista). Day trade: 20%, sem isenção. Perda de day trade só compensa day trade.", "id": "f25"}, {"m": "M4", "f": "PGBL x VGBL", "v": "PGBL: dedutível até 12% da renda bruta tributável (só no modelo completo); IR no resgate sobre o TOTAL. VGBL: sem dedução; IR só sobre o RENDIMENTO.", "id": "f26"}, {"m": "M4", "f": "Tabela regressiva da previdência", "v": "35% até 2 anos, caindo 5 p.p. a cada 2 anos, até 10% após 10 anos. Escolha natural para o longo prazo.", "id": "f27"}, {"m": "M4", "f": "RGPS após a EC 103/2019", "v": "Aposentadoria programada, regra permanente urbana: 65 anos (homens) e 62 anos (mulheres). Carência: 15 anos (mulheres e homens já filiados) ou 20 anos (homens filiados após 13/11/2019). Rurais: 60/55. Cinco regras de transição.", "id": "f28"}, {"m": "M4", "f": "Taxa de reposição", "v": "Renda desejada na aposentadoria ÷ renda atual. Fica abaixo de 100% porque despesas com filhos, financiamento e a própria poupança cessam.", "id": "f29"}, {"m": "M4", "f": "Planos de previdência fechada", "v": "BD: benefício pactuado, risco atuarial do plano/patrocinador. CD: benefício depende do saldo, risco do participante. CV: combina os dois.", "id": "f30"}, {"m": "M5", "f": "Formas de tratar o risco", "v": "Evitar · Reter · Reduzir · Transferir. Alta frequência e baixa severidade → reter. Baixa frequência e alta severidade → transferir (seguro). Alta e alta → evitar.", "id": "f31"}, {"m": "M5", "f": "Necessidade de capital em seguro de vida", "v": "Necessidades futuras (dívidas, educação, manutenção do padrão, custos finais) − Recursos existentes (investimentos, apólices, benefícios). O múltiplo do salário é só regra de bolso.", "id": "f32"}, {"m": "M5", "f": "Franquia dedutível", "v": "A seguradora paga o que exceder a franquia. Participa o segurado no prejuízo e reduz o prêmio.", "id": "f33"}, {"m": "M5", "f": "Princípio indenizatório", "v": "No seguro de DANO a indenização não pode gerar lucro: limita-se ao prejuízo efetivo. Seguro de pessoas segue lógica de capital contratado.", "id": "f34"}, {"m": "M5", "f": "Elementos do contrato de seguro", "v": "Risco · Prêmio · Sinistro · Indenização · Boa-fé · Interesse segurável. Agravamento intencional do risco gera perda de direito.", "id": "f35"}, {"m": "M6", "f": "Isenções no ganho de capital de imóveis", "v": "(1) Único imóvel de até R$ 440.000, desde que não haja outra alienação de imóvel, a qualquer título, tributada ou não, nos 5 anos anteriores. (2) Lei 11.196/2005: reinvestir em imóvel residencial no Brasil em 180 dias.", "id": "f36"}, {"m": "M6", "f": "Elisão x evasão x elusão", "v": "Elisão: lícita, antes do fato gerador, com propósito negocial. Evasão: ilícita (fraude, omissão, simulação). Elusão: abuso de forma, na zona cinzenta.", "id": "f37"}, {"m": "M6", "f": "Reforma Tributária — EC 132/2023", "v": "IBS (estados e municípios, substitui ICMS e ISS) · CBS (federal, substitui PIS e Cofins) · IS (Imposto Seletivo). ITCMD passou a ter progressividade obrigatória.", "id": "f38"}, {"m": "M6", "f": "Pró-labore x distribuição de lucros", "v": "Pró-labore: INSS + IRPF progressivo. Lucros com escrituração regular: sem INSS e isentos de IR até R$ 50 mil/mês por fonte pagadora (Lei 15.270/2025); acima, 10% de IRRF. O pró-labore é o que garante a cobertura previdenciária do sócio.", "id": "f39"}, {"m": "M7", "f": "Herdeiros necessários", "v": "Descendentes, ascendentes e cônjuge (art. 1.845 CC) — e o companheiro em união estável, equiparado pelo STF no RE 878.694. Colaterais e irmãos NÃO são necessários: podem ser afastados por testamento.", "id": "f40"}, {"m": "M7", "f": "Legítima e parte disponível", "v": "Com herdeiros necessários: 50% é legítima (indisponível) e 50% pode ser disposto por testamento.", "id": "f41"}, {"m": "M7", "f": "Comunhão parcial de bens", "v": "Comunicam-se os bens adquiridos ONEROSAMENTE na constância do casamento. Fora: anteriores, heranças e doações. É o regime legal supletivo.", "id": "f42"}, {"m": "M7", "f": "Seguro de vida e sucessão", "v": "Art. 794 CC: o capital estipulado NÃO se considera herança. Vai direto aos beneficiários, fora do inventário — instrumento de liquidez sucessória.", "id": "f43"}, {"m": "M7", "f": "Inventário extrajudicial", "v": "Base: consenso entre herdeiros capazes, com advogado. Res. CNJ 571/2024 ampliou: admite-se com menor/incapaz (frações ideais + parecer do MP) e com testamento (autorização do juízo sucessório). Litígio → via judicial obrigatória.", "id": "f44"}, {"m": "M7", "f": "ITCMD", "v": "Imposto ESTADUAL sobre transmissão causa mortis e doação, com alíquota máxima fixada por resolução do Senado. A carga varia por estado.", "id": "f45"}, {"m": "M8", "f": "Teoria do prospecto", "v": "Kahneman e Tversky: avaliação em relação a um ponto de referência + assimetria (a perda pesa cerca de 2x o ganho). Aversão ao risco em ganhos, busca de risco em perdas.", "id": "f46"}, {"m": "M8", "f": "Aversão à perda", "v": "A dor da perda supera o prazer do ganho equivalente. Efeito prático: manter posições perdedoras e realizar ganhos cedo demais.", "id": "f47"}, {"m": "M8", "f": "Ancoragem", "v": "Fixar-se num número irrelevante (preço de compra, primeira cotação vista) como referência da decisão.", "id": "f48"}, {"m": "M8", "f": "Contabilidade mental", "v": "Tratar recursos fungíveis como caixas separadas com regras próprias. Pode ajudar (reserva intocável) ou atrapalhar (gastar bônus enquanto paga juros).", "id": "f49"}, {"m": "M8", "f": "Excesso de confiança", "v": "Superestimar a própria habilidade e confundir sorte com competência. Consequência: giro excessivo e concentração da carteira.", "id": "f50"}, {"m": "M8", "f": "Outros vieses frequentes", "v": "Viés de confirmação · Disponibilidade · Representatividade · Efeito manada · Status quo · Aversão ao arrependimento · Efeito dotação", "id": "f51"}, {"m": "M8", "f": "Escuta ativa", "v": "Perguntas abertas · Paráfrase · Confirmação do entendimento · Atenção ao não verbal · Silêncio produtivo. O foco fica no cliente, não na solução.", "id": "f52"}]};
+const KEY='cfp-app-fer-v1';
+const MODS=['M1','M2','M3','M4','M5','M6','M7','M8'];
+let S={done:{},hours:{},myQ:[],myF:[],ans:[],errs:[]};
+try{const r=localStorage.getItem(KEY); if(r) S=Object.assign(S,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const STUDY=D.plan.filter(p=>p.m!=='OFF');
+const TOTALH=STUDY.reduce((a,b)=>a+b.h,0);
+const allQ=()=>D.seedQ.concat(S.myQ);
+const allF=()=>D.seedF.concat(S.myF);
+
+/* ---- tabs ---- */
+$$('.tabs button').forEach(b=>b.onclick=()=>{
+  $$('.tabs button').forEach(x=>x.classList.remove('on'));
+  $$('.pane').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); $('#p-'+b.dataset.t).classList.add('on');
+  if(b.dataset.t==='prog') renderProg();
+  if(b.dataset.t==='erros') renderErrs();
+});
+
+/* ---- dias ---- */
+const PROVA=new Date(2026,9,18);
+const hoje=new Date(); hoje.setHours(0,0,0,0);
+const isoHoje=new Date(hoje.getTime()-hoje.getTimezoneOffset()*60000).toISOString().slice(0,10);
+const dias=Math.max(0,Math.round((PROVA-hoje)/864e5));
+$('#hdias').textContent=dias; $('#s-dias').textContent=dias;
+
+/* ---- cronograma ---- */
+function br(iso){const [y,m,d]=iso.split('-');return d+'/'+m;}
+function buildWeeks(){
+  const byW={}; D.plan.forEach(p=>{(byW[p.w]=byW[p.w]||[]).push(p);});
+  let h='';
+  Object.keys(byW).map(Number).sort((a,b)=>a-b).forEach(w=>{
+    const it=byW[w], hrs=it.reduce((a,b)=>a+b.h,0);
+    h+='<section class="week'+(w>2?' collapsed':'')+'" data-week="'+w+'">'
+      +'<header class="wh"><div><span class="wn">Semana '+w+'</span><span class="wr">'+br(it[0].date)+' – '+br(it[it.length-1].date)+'</span></div>'
+      +'<div class="wt">'+esc(D.weekTitles[w])+'</div>'
+      +'<div class="wm"><span class="wprog" data-week="'+w+'">0/0</span> <span>'+hrs+'h</span></div></header><div class="rows">';
+    it.forEach(p=>{
+      const off=p.m==='OFF', prova=p.t.indexOf('PROVA CFP')>=0;
+      h+='<label class="row'+(off?' off':'')+(prova?' prova':'')+'" data-id="'+p.id+'">'
+        +'<div>'+(off?'':'<input type="checkbox" class="cb" data-id="'+p.id+'">')+'</div>'
+        +'<div class="daycol"><span class="dow">'+esc(p.dow)+'</span>'+br(p.date)+'</div>'
+        +'<div><span class="chip'+(off?' off':'')+'" style="'+(off?'':'background:'+D.colors[p.m])+'">'+(off?'—':p.m)+'</span>'
+        +(p.h?'<span class="h">'+p.h+'h</span>':'')
+        +'<div class="task">'+esc(p.t)+'</div>'+(p.r?'<div class="rec">'+esc(p.r)+'</div>':'')+'</div></label>';
+    });
+    h+='</div></section>';
+  });
+  $('#weeks').innerHTML=h;
+  $$('.wh').forEach(x=>x.onclick=e=>{x.parentElement.classList.toggle('collapsed');});
+}
+buildWeeks();
+$('#expand').onclick=()=>$$('.week').forEach(w=>w.classList.remove('collapsed'));
+$('#collapse').onclick=()=>$$('.week').forEach(w=>w.classList.add('collapsed'));
+function goToday(){
+  const t=D.plan.find(p=>p.date>=isoHoje)||D.plan[0];
+  const w=document.querySelector('.week[data-week="'+t.w+'"]');
+  if(w){w.classList.remove('collapsed');w.scrollIntoView({behavior:'smooth',block:'start'});}
+}
+$('#goToday').onclick=goToday;
+
+document.addEventListener('change',e=>{
+  if(!e.target.classList.contains('cb'))return;
+  const id=e.target.dataset.id;
+  if(e.target.checked) S.done[id]=1; else delete S.done[id];
+  save(); renderAll();
+});
+
+/* ---- hoje ---- */
+function todayItem(){ return D.plan.find(p=>p.date===isoHoje) || D.plan.find(p=>p.date>=isoHoje) || null; }
+function renderToday(){
+  const p=todayItem(), b=$('#todayBox');
+  if(!p){b.innerHTML='<p class="small">O plano começa em 03/08/2026.</p>';return;}
+  const off=p.m==='OFF';
+  const dt=br(p.date)+' · '+p.dow+(p.date===isoHoje?'':' (próximo dia do plano)');
+  b.innerHTML='<div class="small" style="margin-bottom:6px">'+esc(dt)+'</div>'
+   +'<span class="chip'+(off?' off':'')+'" style="'+(off?'':'background:'+D.colors[p.m])+'">'+(off?'—':p.m)+'</span>'
+   +(p.h?'<span class="h">'+p.h+'h previstas</span>':'')
+   +'<div style="margin-top:8px;font-size:15px">'+esc(p.t)+'</div>'
+   +(p.r?'<div class="rec">'+esc(p.r)+'</div>':'')
+   +(off?'':'<div class="tools" style="margin-top:12px"><label style="display:flex;gap:8px;align-items:center;cursor:pointer">'
+     +'<input type="checkbox" class="cb" data-id="'+p.id+'" '+(S.done[p.id]?'checked':'')+'> <span>Marcar como concluído</span></label>'
+     +'<span class="small" style="align-self:center">registradas: '+((S.hours[p.id]||0).toFixed(1))+'h</span></div>');
+}
+
+/* ---- timer ---- */
+let tMode='pomo', tPhase='foco', tLeft=25*60, tRun=false, tEl=0, tInt=null;
+function fmt(s){const m=Math.floor(s/60),x=s%60;return String(m).padStart(2,'0')+':'+String(x).padStart(2,'0');}
+function paint(){ $('#clock').textContent = tMode==='pomo'?fmt(tLeft):fmt(tEl);
+  $('#clock').classList.toggle('run',tRun);
+  $('#clocklbl').textContent = tMode==='pomo' ? (tPhase==='foco'?'Foco':'Pausa') : (tRun?'Contando':'Parado'); }
+function tick(){
+  if(tMode==='pomo'){
+    tLeft--; if(tPhase==='foco') tEl++;
+    if(tLeft<=0){ if(tPhase==='foco'){tPhase='pausa';tLeft=5*60;} else {tPhase='foco';tLeft=25*60;} }
+  } else tEl++;
+  paint();
+}
+$('#tStart').onclick=()=>{ if(tRun)return; tRun=true; tInt=setInterval(tick,1000); paint(); };
+$('#tPause').onclick=()=>{ tRun=false; clearInterval(tInt); paint(); };
+$('#tStop').onclick=()=>{
+  tRun=false; clearInterval(tInt);
+  const h=Math.round(tEl/36)/100;
+  const id=$('#tDay').value;
+  if(h>0&&id!==''){ S.hours[id]=(S.hours[id]||0)+h; save(); alert('Registradas '+h.toFixed(2)+'h.'); }
+  tEl=0; tPhase='foco'; tLeft=25*60; paint(); renderAll();
+};
+$$('#modeSeg button').forEach(b=>b.onclick=()=>{
+  $$('#modeSeg button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  tMode=b.dataset.mode; tRun=false; clearInterval(tInt); tEl=0; tPhase='foco'; tLeft=25*60; paint();
+});
+function fillDaySel(){
+  const t=todayItem();
+  $('#tDay').innerHTML=STUDY.map(p=>'<option value="'+p.id+'"'+(t&&t.id===p.id?' selected':'')+'>'+br(p.date)+' · '+p.m+' · '+p.t.slice(0,58)+'</option>').join('');
+}
+paint();
+
+/* ---- selects de modulo ---- */
+function modOpts(all){ return (all?'<option value="all">Todos os módulos</option>':'')
+  + MODS.map(m=>'<option value="'+m+'">'+m+' — '+D.modNames[m]+'</option>').join(''); }
+['#fcMod','#qMod','#errMod'].forEach(s=>$(s).innerHTML=modOpts(true));
+['#nfMod','#nqMod'].forEach(s=>$(s).innerHTML=modOpts(false));
+
+/* ---- flashcards ---- */
+let fcList=[], fcI=0, fcBack=false;
+function fcLoad(){
+  const m=$('#fcMod').value;
+  fcList=allF().filter(c=>m==='all'||c.m===m);
+  fcI=0; fcBack=false; fcPaint();
+}
+function fcPaint(){
+  const el=$('#fcFace');
+  if(!fcList.length){el.textContent='Nenhum flashcard neste módulo.';el.classList.remove('back');$('#fcCount').textContent='';return;}
+  const c=fcList[fcI];
+  el.classList.toggle('back',fcBack);
+  el.innerHTML = fcBack ? '<div><b style="color:#1D8C7E">'+esc(c.f)+'</b><br><br>'+esc(c.v)+'</div>' : '<div>'+esc(c.f)+'</div>';
+  $('#fcCount').textContent=(fcI+1)+' / '+fcList.length+' · '+c.m;
+}
+$('#fcFace').onclick=()=>{fcBack=!fcBack;fcPaint();};
+$('#fcFlip').onclick=()=>{fcBack=!fcBack;fcPaint();};
+$('#fcNext').onclick=()=>{if(fcList.length){fcI=(fcI+1)%fcList.length;fcBack=false;fcPaint();}};
+$('#fcPrev').onclick=()=>{if(fcList.length){fcI=(fcI-1+fcList.length)%fcList.length;fcBack=false;fcPaint();}};
+$('#fcShuffle').onclick=()=>{for(let i=fcList.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[fcList[i],fcList[j]]=[fcList[j],fcList[i]];}fcI=0;fcBack=false;fcPaint();};
+$('#fcMod').onchange=fcLoad;
+$('#nfAdd').onclick=()=>{
+  const f=$('#nfF').value.trim(), v=$('#nfV').value.trim();
+  if(!f||!v){alert('Preencha a frente e o verso.');return;}
+  S.myF.push({id:'mf'+Date.now(),m:$('#nfMod').value,f:f,v:v}); save();
+  $('#nfF').value='';$('#nfV').value=''; fcLoad(); alert('Flashcard adicionado.');
+};
+
+/* ---- questoes ---- */
+let qList=[], qI=0, qMode='livre', qSession=[];
+function qLoad(){
+  const m=$('#qMod').value; qMode=$('#qMode').value;
+  qList=allQ().filter(q=>m==='all'||q.m===m);
+  for(let i=qList.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[qList[i],qList[j]]=[qList[j],qList[i]];}
+  qI=0; qSession=[];
+  if(!qList.length){$('#qArea').innerHTML='<div class="card"><p class="small">Nenhuma questão neste módulo ainda. Adicione as suas abaixo.</p></div>';return;}
+  $('#qEnd').style.display=qMode==='sim'?'':'none';
+  qPaint();
+}
+function qPaint(){
+  if(qI>=qList.length){qResult();return;}
+  const q=qList[qI];
+  $('#qStatus').textContent='Questão '+(qI+1)+' de '+qList.length+' · '+q.m;
+  $('#qArea').innerHTML='<div class="card"><div class="qbox">'
+   +'<div class="qtxt">'+esc(q.q)+'</div>'
+   +q.o.map((o,i)=>'<label class="opt" data-i="'+i+'"><b>'+'ABCD'[i]+'.</b> '+esc(o)+'</label>').join('')
+   +'<div id="fb"></div></div>'
+   +'<div class="tools" style="margin-top:12px"><button class="b" id="qSkip">Pular</button><button class="b p hide" id="qNext">Próxima ›</button></div></div>';
+  $$('#qArea .opt').forEach(el=>el.onclick=()=>choose(+el.dataset.i));
+  $('#qSkip').onclick=()=>{qI++;qPaint();};
+}
+function choose(i){
+  const q=qList[qI], ok=i===q.a;
+  qSession.push({m:q.m,ok:ok});
+  S.ans.push({m:q.m,ok:ok,t:Date.now()});
+  if(!ok) S.errs.unshift({id:'e'+Date.now()+Math.random().toString(36).slice(2,6),m:q.m,q:q.q,c:q.o[q.a],e:q.e,t:Date.now()});
+  save();
+  $$('#qArea .opt').forEach(el=>{
+    const j=+el.dataset.i; el.style.pointerEvents='none';
+    if(j===q.a) el.classList.add('ok'); else if(j===i) el.classList.add('no');
+  });
+  if(qMode==='livre') $('#fb').innerHTML='<div class="expl"><b>'+(ok?'Correto.':'Incorreto — a correta é '+'ABCD'[q.a]+'.')+'</b> '+esc(q.e)+'</div>';
+  else $('#fb').innerHTML='<div class="small" style="margin-top:8px">Resposta registrada. Comentários no fim do simulado.</div>';
+  const n=$('#qNext'); n.classList.remove('hide'); n.onclick=()=>{qI++;qPaint();};
+}
+function qResult(){
+  const n=qSession.length, ac=qSession.filter(x=>x.ok).length;
+  const pct=n?Math.round(100*ac/n):0;
+  let byM={}; qSession.forEach(x=>{byM[x.m]=byM[x.m]||[0,0];byM[x.m][1]++;if(x.ok)byM[x.m][0]++;});
+  let rows=Object.keys(byM).sort().map(m=>{
+    const [a,t]=byM[m], p=Math.round(100*a/t);
+    return '<tr><td>'+m+' — '+D.modNames[m]+'</td><td class="n">'+t+'</td><td class="n">'+a+'</td><td class="n">'+p+'%</td>'
+      +'<td class="n"><span class="pill '+(p>=50?'g':'r')+'">'+(p>=50?'ok':'abaixo')+'</span></td></tr>';
+  }).join('');
+  $('#qStatus').textContent='';
+  $('#qArea').innerHTML='<div class="card"><h3>Resultado</h3>'
+   +'<div class="stats" style="margin-bottom:12px"><div class="stat"><b>'+ac+'/'+n+'</b><span>acertos</span></div>'
+   +'<div class="stat"><b>'+pct+'%</b><span>aproveitamento</span></div>'
+   +'<div class="stat"><b>'+(pct>=70?'≥70%':'<70%')+'</b><span>corte total</span></div></div>'
+   +(rows?'<table><thead><tr><th>Módulo</th><th class="n">Qtd</th><th class="n">Acertos</th><th class="n">%</th><th class="n">50%</th></tr></thead><tbody>'+rows+'</tbody></table>':'')
+   +'<p class="note">As questões erradas já foram para a aba «Lista de erros», com o comentário.</p>'
+   +'<div class="tools" style="margin-top:10px"><button class="b p" id="qAgain">Novo treino</button></div></div>';
+  $('#qAgain').onclick=qLoad;
+  $('#qEnd').style.display='none';
+}
+$('#qStart').onclick=qLoad;
+$('#qEnd').onclick=qResult;
+$('#nqAdd').onclick=()=>{
+  const q=$('#nqQ').value.trim(), o=[0,1,2,3].map(i=>$('#nqO'+i).value.trim());
+  if(!q||o.some(x=>!x)){alert('Preencha o enunciado e as quatro alternativas.');return;}
+  S.myQ.push({id:'mq'+Date.now(),m:$('#nqMod').value,q:q,o:o,a:+$('#nqA').value,e:$('#nqE').value.trim()||'(sem comentário)'});
+  save(); $('#nqQ').value='';[0,1,2,3].forEach(i=>$('#nqO'+i).value='');$('#nqE').value='';
+  alert('Questão adicionada ao banco.');
+};
+
+/* ---- erros ---- */
+function renderErrs(){
+  const m=$('#errMod').value;
+  const list=S.errs.filter(e=>m==='all'||e.m===m);
+  if(!list.length){$('#errList').innerHTML='<p class="small">Nenhum erro registrado ainda.</p>';return;}
+  $('#errList').innerHTML=list.map(e=>{
+    const d=new Date(e.t);
+    return '<div class="errit"><span class="chip" style="background:'+D.colors[e.m]+'">'+e.m+'</span> '
+     +'<span class="small">'+String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'</span>'
+     +'<div style="margin-top:5px">'+esc(e.q)+'</div>'
+     +'<div class="small"><b>Correta:</b> '+esc(e.c)+'</div>'
+     +'<div class="small">'+esc(e.e)+'</div>'
+     +'<div style="margin-top:6px"><button class="b" data-rm="'+e.id+'" style="padding:3px 9px;font-size:11px">Já domino, remover</button></div></div>';
+  }).join('');
+  $$('#errList button[data-rm]').forEach(b=>b.onclick=()=>{
+    S.errs=S.errs.filter(x=>x.id!==b.dataset.rm); save(); renderErrs();
+  });
+}
+$('#errMod').onchange=renderErrs;
+$('#errClear').onclick=()=>{ if(confirm('Remover TODOS os erros da lista?')){S.errs=[];save();renderErrs();} };
+
+/* ---- progresso ---- */
+function renderProg(){
+  const n=STUDY.filter(p=>S.done[p.id]).length;
+  const pct=STUDY.length?Math.round(100*n/STUDY.length):0;
+  const hr=Object.values(S.hours).reduce((a,b)=>a+b,0);
+  $('#gfill').style.width=pct+'%';
+  $('#gtxt').textContent=n+' de '+STUDY.length+' dias · '+hr.toFixed(1)+'h registradas de '+TOTALH+'h previstas';
+  const byM={}; STUDY.forEach(p=>{byM[p.m]=byM[p.m]||[0,0];byM[p.m][1]++;if(S.done[p.id])byM[p.m][0]++;});
+  $('#modBars').innerHTML=Object.keys(byM).map(m=>{
+    const [a,t]=byM[m], q=Math.round(100*a/t);
+    return '<div class="mrow"><span class="mdot" style="background:'+D.colors[m]+'"></span>'
+      +'<span class="mname">'+esc(D.modNames[m])+'</span><div class="bar"><i style="width:'+q+'%"></i></div>'
+      +'<span class="mpct">'+a+'/'+t+'</span></div>';
+  }).join('');
+  const perf={}; S.ans.forEach(a=>{perf[a.m]=perf[a.m]||[0,0];perf[a.m][1]++;if(a.ok)perf[a.m][0]++;});
+  $('#perfBody').innerHTML=MODS.map(m=>{
+    const v=perf[m];
+    if(!v) return '<tr><td>'+m+' — '+esc(D.modNames[m])+'</td><td class="n">—</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>';
+    const p=Math.round(100*v[0]/v[1]);
+    return '<tr><td>'+m+' — '+esc(D.modNames[m])+'</td><td class="n">'+v[1]+'</td><td class="n">'+v[0]+'</td><td class="n">'+p+'%</td>'
+      +'<td class="n"><span class="pill '+(p>=50?'g':'r')+'">'+(p>=50?'ok':'atenção')+'</span></td></tr>';
+  }).join('');
+}
+
+/* ---- dados ---- */
+$('#doExport').onclick=()=>{
+  const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='backup-cfp-'+isoHoje+'.json'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+};
+$('#doImportBtn').onclick=()=>$('#doImport').click();
+$('#doImport').onchange=e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{ try{ const o=JSON.parse(r.result);
+      S=Object.assign({done:{},hours:{},myQ:[],myF:[],ans:[],errs:[]},o); save();
+      alert('Backup importado.'); location.reload();
+    }catch(err){alert('Arquivo inválido.');} };
+  r.readAsText(f);
+};
+$('#rsMark').onclick=()=>{ if(confirm('Zerar marcações e horas? Suas questões e flashcards continuam.')){S.done={};S.hours={};save();renderAll();} };
+$('#rsAll').onclick=()=>{ if(confirm('Apagar TUDO, inclusive suas questões, flashcards e lista de erros?')){localStorage.removeItem(KEY);location.reload();} };
+
+/* ---- render geral ---- */
+function renderAll(){
+  $$('.row').forEach(el=>{
+    const on=!!S.done[el.dataset.id];
+    el.classList.toggle('done',on);
+    const cb=el.querySelector('.cb'); if(cb) cb.checked=on;
+  });
+  const n=STUDY.filter(p=>S.done[p.id]).length;
+  const hr=Object.values(S.hours).reduce((a,b)=>a+b,0);
+  $('#s-feitos').textContent=n;
+  $('#s-horas').textContent=hr.toFixed(1)+'h';
+  $('#s-pct').textContent=(STUDY.length?Math.round(100*n/STUDY.length):0)+'%';
+  $$('.wprog').forEach(el=>{
+    const w=+el.dataset.week, l=STUDY.filter(p=>p.w===w);
+    el.textContent=l.filter(p=>S.done[p.id]).length+'/'+l.length;
+  });
+  renderToday(); renderProg();
+}
+fillDaySel(); fcLoad(); renderAll();
+console.log('app ok · questoes:',allQ().length,'· flashcards:',allF().length,'· dias de estudo:',STUDY.length);
+</script>
+</body></html>
